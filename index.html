@@ -35,7 +35,7 @@
     --metal:#9aa6ac;
   }
 
-  *{box-sizing:border-box;}
+  *{box-sizing:border-box; touch-action:manipulation;}
 
   body{
     background:var(--coal-black);
@@ -46,13 +46,14 @@
     align-items:center;
     justify-content:center;
     padding:20px;
+    touch-action:manipulation;
   }
 
   .pixel{ image-rendering:pixelated; }
 
   h1,h2,h3,.press{ font-family:'Press Start 2P',monospace; }
 
-  button{ font-family:'Press Start 2P',monospace; cursor:pointer; border:none; }
+  button{ font-family:'Press Start 2P',monospace; cursor:pointer; border:none; touch-action:manipulation; }
   button:focus-visible, input:focus-visible, .tile:focus-visible{
     outline:3px solid var(--lantern);
     outline-offset:2px;
@@ -102,8 +103,8 @@
 
   /* ---------- shared bits ---------- */
   .eyebrow{
-    font-size:11px;
-    letter-spacing:.14em;
+    font-size:16px;
+    letter-spacing:.12em;
     color:var(--lantern);
     text-transform:uppercase;
     margin:0 0 6px;
@@ -227,6 +228,12 @@
     padding:6px 4px; border-bottom:1px dashed var(--slate);
   }
   #leaderboardList li:first-child{ color:var(--lantern); }
+  .lb-star{ color:#ffd23f; margin-right:6px; }
+  .lb-badge{
+    font-family:'Press Start 2P',monospace; font-size:8px; letter-spacing:.05em;
+    color:var(--coal-black); background:#ffd23f; padding:3px 6px; margin-left:8px;
+    vertical-align:middle; white-space:nowrap;
+  }
   .lb-empty, .lb-status{ color:var(--dust); font-size:16px; }
 
   .leaky-barrel{
@@ -407,7 +414,7 @@
     min-height:96px;
     display:flex; flex-direction:column; justify-content:center;
   }
-  .prompt-eyebrow{ font-size:16px; color:var(--lantern); letter-spacing:.1em; margin-bottom:8px;}
+  .prompt-eyebrow{ font-size:23px; color:var(--lantern); letter-spacing:.08em; margin-bottom:8px;}
   .prompt-text{ font-size:24px; line-height:1.35; }
 
   .answer-area{
@@ -487,6 +494,17 @@
     width:100%; font-size:13px; font-style:italic; color:#a3572e;
     margin-top:-2px;
   }
+  .review-desc-toggle{
+    font-family:'VT323',monospace; font-size:14px; letter-spacing:.02em;
+    color:#2f6f4f; background:none; border:none; padding:0; margin-top:-2px;
+    text-decoration:underline; cursor:pointer;
+  }
+  .review-desc-toggle:hover{ color:#1c4d33; }
+  .review-desc{
+    width:100%; font-family:'VT323',monospace; font-size:16px; line-height:1.4;
+    color:#4a4335; background:#efe9da; border-left:3px solid #b8ad93;
+    padding:8px 10px; margin-top:2px;
+  }
   .end-actions{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:22px; }
   .sub-status{ font-size:14px; color:var(--dust); margin-top:10px; min-height:18px; }
 </style>
@@ -521,11 +539,11 @@
             <span class="level-tag">Ready</span>
           </div>
           <div class="level-row locked">
-            <span>2 — The Castle Approach</span>
+            <span>2 — Prongs of Doom</span>
             <span class="level-tag">Soon</span>
           </div>
           <div class="level-row locked">
-            <span>3 — ???</span>
+            <span>3 — Stuff the Box</span>
             <span class="level-tag">Soon</span>
           </div>
         </div>
@@ -549,7 +567,7 @@
       <p class="howto-sub">How to play Level 1</p>
       <ol class="howto-rules">
         <li>A rule, statute, or model rule will appear. Read the prompt.</li>
-        <li>Type the <b>number</b> that goes with it — 0–9, plus the period key for ABA Model Rules with decimals (like 3.1).</li>
+        <li>Type the <b>number</b> that goes with it, plus the period key for ABA Model Rules with decimals (like 3.1).</li>
         <li>Press <b>ENTER</b> to submit your answer. Backspace fixes a typo first.</li>
         <li>Press <b>SPACEBAR</b> to skip a question you don't know — it comes back around at the end.</li>
         <li>Wrong answers cost nothing but time, so keep trying.</li>
@@ -670,62 +688,69 @@
   /* (9.130(a)(3)(B) and 9.130(a)(3)(G)) are left out of Level 1 — their answers include */
   /* letters and parentheses, which this level's numeric-only keypad can't take. */
   var QUESTIONS = [
-    {tag:"ABA MODEL RULE", prompt:"Meritorious claims and contentions", answer:"3.1"},
-    {tag:"ABA MODEL RULE", prompt:"Candor toward the tribunal", answer:"3.3"},
-    {tag:"ABA MODEL RULE", prompt:"Responsibilities of partners, managers, and supervisory lawyers", answer:"5.1"},
-    {tag:"ABA MODEL RULE", prompt:"Responsibilities of a subordinate lawyer", answer:"5.2"},
-    {tag:"ABA MODEL RULE", prompt:"Reporting professional misconduct", answer:"8.3"},
-    {tag:"ABA MODEL RULE", prompt:"Misconduct", answer:"8.4"},
-    {tag:"FED. R. CIV. P.", prompt:"Scope and purpose", answer:"1"},
-    {tag:"FED. R. CIV. P.", prompt:"One form of action — a civil action", answer:"2"},
-    {tag:"FED. R. CIV. P.", prompt:"Commencing an action — filing a claim", answer:"3"},
-    {tag:"FED. R. CIV. P.", prompt:"Summons", answer:"4"},
-    {tag:"FED. R. CIV. P.", prompt:"Serving and filing pleadings and other papers", answer:"5"},
-    {tag:"FED. R. CIV. P.", prompt:"Computing and extending time; time for motion papers", answer:"6"},
-    {tag:"FED. R. CIV. P.", prompt:"Pleadings allowed; form of motions and other papers", answer:"7"},
-    {tag:"FED. R. CIV. P.", prompt:"Disclosure statement — piercing the corporate veil", answer:"7.1"},
-    {tag:"FED. R. CIV. P.", prompt:"General rules of pleading — claim for relief, defenses, affirmative defenses", answer:"8"},
-    {tag:"FED. R. CIV. P.", prompt:"Pleading special matters", answer:"9"},
-    {tag:"FED. R. CIV. P.", prompt:"Form of pleadings", answer:"10"},
-    {tag:"FED. R. CIV. P.", prompt:"Signing pleadings, motions & papers; representations to the court; sanctions", answer:"11"},
-    {tag:"FED. R. CIV. P.", prompt:"Defenses and objections; motion for judgment on the pleadings; consolidating motions; waiving defenses", answer:"12"},
-    {tag:"FED. R. CIV. P.", prompt:"Counterclaim and crossclaim", answer:"13"},
-    {tag:"FED. R. CIV. P.", prompt:"Third-party practice", answer:"14"},
-    {tag:"FED. R. CIV. P.", prompt:"Amended and supplemental pleadings", answer:"15"},
-    {tag:"FED. R. CIV. P.", prompt:"Pretrial conferences; scheduling; management", answer:"16"},
-    {tag:"FED. R. CIV. P.", prompt:"Multidistrict litigation", answer:"16.1"},
-    {tag:"FED. R. CIV. P.", prompt:"Plaintiff and defendant; capacity; public officers", answer:"17"},
-    {tag:"FED. R. CIV. P.", prompt:"Joinder of claims", answer:"18"},
-    {tag:"FED. R. CIV. P.", prompt:"Required joinder of parties", answer:"19"},
-    {tag:"FED. R. CIV. P.", prompt:"Permissive joinder of parties", answer:"20"},
-    {tag:"FED. R. CIV. P.", prompt:"Misjoinder and nonjoinder of parties", answer:"21"},
-    {tag:"FED. R. CIV. P.", prompt:"Interpleader", answer:"22"},
-    {tag:"FED. R. CIV. P.", prompt:"Class actions", answer:"23"},
-    {tag:"FED. R. CIV. P.", prompt:"Intervention", answer:"24"},
-    {tag:"FED. R. CIV. P.", prompt:"Substitution of parties", answer:"25"},
-    {tag:"FED. R. CIV. P.", prompt:"Declaratory judgment", answer:"57"},
-    {tag:"FED. R. CIV. P.", prompt:"Seizing a person or property", answer:"64"},
-    {tag:"FED. R. CIV. P.", prompt:"Injunctions and restraining orders", answer:"65"},
-    {tag:"FED. R. CIV. P.", prompt:"Enforcing a judgment for a specific act", answer:"70"},
-    {tag:"28 U.S.C. §", prompt:"Final decisions of district courts", answer:"1291"},
-    {tag:"28 U.S.C. §", prompt:"Interlocutory decisions", answer:"1292"},
-    {tag:"28 U.S.C. §", prompt:"Diversity of citizenship; amount in controversy; costs", answer:"1332"},
-    {tag:"28 U.S.C. §", prompt:"Supplemental jurisdiction", answer:"1367"},
-    {tag:"28 U.S.C. §", prompt:"Removal of civil actions", answer:"1441"},
-    {tag:"28 U.S.C. §", prompt:"Proceedings in forma pauperis", answer:"1915"},
-    {tag:"28 U.S.C. §", prompt:"Taxation of costs", answer:"1920"},
-    {tag:"28 U.S.C. §", prompt:"Interest", answer:"1961"},
-    {tag:"28 U.S.C. §", prompt:"Creation of remedy", answer:"2201"},
-    {tag:"28 U.S.C. §", prompt:"Further relief", answer:"2202"},
-    {tag:"28 U.S.C. §", prompt:"Costs and fees", answer:"2412"},
-    {tag:"42 U.S.C. §", prompt:"Civil action for deprivation of rights", answer:"1983"},
-    {tag:"42 U.S.C. §", prompt:"Conspiracy to interfere with civil rights", answer:"1985"},
-    {tag:"42 U.S.C. §", prompt:"Proceedings in vindication of civil rights", answer:"1988"},
-    {tag:"U.S. CONST. AMEND.", prompt:"Due process — federal", answer:"5"},
-    {tag:"U.S. CONST. AMEND.", prompt:"Due process — state", answer:"14"},
-    {tag:"FLA. R. CIV. P.", prompt:"Proposals for settlement", answer:"1.442"},
-    {tag:"FLA. R. CIV. P.", prompt:"Case management; pretrial procedure", answer:"1.200"},
-    {tag:"FLA. R. CIV. P.", prompt:"Complex litigation", answer:"1.201"}
+    {tag:"ABA MODEL RULE", prompt:"Meritorious Claims and Contentions", answer:"3.1", description:"A lawyer cannot file or defend a claim unless there is a nonfrivolous basis in law and fact, including a good-faith argument to change existing law."},
+    {tag:"ABA MODEL RULE", prompt:"Candor toward the Tribunal", answer:"3.3", description:"A lawyer must be honest with the court, correct material false statements, disclose controlling adverse authority when required, and not knowingly offer false evidence."},
+    {tag:"ABA MODEL RULE", prompt:"Responsibilities of Partners, Managers, and Supervisory Lawyers", answer:"5.1", description:"Law-firm partners, managers, and supervisors must make reasonable efforts to ensure that other lawyers comply with the ethics rules and can sometimes be responsible for another lawyer\u2019s misconduct."},
+    {tag:"ABA MODEL RULE", prompt:"Responsibilities of a Subordinate Lawyer", answer:"5.2", description:"A subordinate lawyer is still responsible for following the ethics rules, except when reasonably relying on a supervisor\u2019s decision about a genuinely debatable ethics question."},
+    {tag:"ABA MODEL RULE", prompt:"Reporting Professional Misconduct", answer:"8.3", description:"A lawyer generally must report serious misconduct by another lawyer or judge when it raises a substantial question about that person\u2019s honesty, trustworthiness, or fitness."},
+    {tag:"ABA MODEL RULE", prompt:"Misconduct", answer:"8.4", description:"Defines professional misconduct, including violating ethics rules, dishonesty or fraud, certain crimes, conduct prejudicial to justice, and improper influence on officials."},
+    {tag:"FED. R. CIV. P.", prompt:"Scope and Purpose", answer:"1", description:"The Federal Rules should be applied to resolve cases fairly, quickly, and without unnecessary expense."},
+    {tag:"FED. R. CIV. P.", prompt:"One Form of Action", answer:"2", description:"Federal court uses one type of civil lawsuit: a \u201ccivil action.\u201d"},
+    {tag:"FED. R. CIV. P.", prompt:"Commencing an Action", answer:"3", description:"A federal civil lawsuit officially begins when the plaintiff files the complaint."},
+    {tag:"FED. R. CIV. P.", prompt:"Summons", answer:"4", description:"Governs the summons and service of the complaint, including who may serve, waiver of service, where service is allowed, and the usual 90-day deadline."},
+    {tag:"FED. R. CIV. P.", prompt:"Serving and Filing Pleadings and Other Papers", answer:"5", description:"Governs how papers after the complaint are served on other parties and filed with the court, including electronic service and filing."},
+    {tag:"FED. R. CIV. P.", prompt:"Computing and Extending Time; Time for Motion Papers", answer:"6", description:"Explains how to count deadlines and when a court may extend them."},
+    {tag:"FED. R. CIV. P.", prompt:"Pleadings Allowed; Form of Motions and Other Papers", answer:"7", description:"Lists the pleadings allowed in federal court and sets basic requirements for motions and other court papers."},
+    {tag:"FED. R. CIV. P.", prompt:"Disclosure Statement", answer:"7.1", description:"Requires certain parties to disclose ownership or citizenship information so the court can identify conflicts and confirm diversity jurisdiction."},
+    {tag:"FED. R. CIV. P.", prompt:"General Rules of Pleading", answer:"8", description:"Sets the basic pleading standard: a complaint must state jurisdiction, give a short and plain statement showing entitlement to relief, and request relief; it also governs admissions and denials."},
+    {tag:"FED. R. CIV. P.", prompt:"Pleading Special Matters", answer:"9", description:"Requires extra detail for certain allegations, especially fraud or mistake, and sets special pleading rules for matters such as special damages and conditions precedent."},
+    {tag:"FED. R. CIV. P.", prompt:"Form of Pleadings", answer:"10", description:"Sets the required format for pleadings, including captions, numbered paragraphs, separate claims or defenses, and exhibits."},
+    {tag:"FED. R. CIV. P.", prompt:"Signing Pleadings, Motions, and Other Papers; Representations to the Court; Sanctions", answer:"11", description:"By signing a filing, a lawyer or party certifies that it is not for an improper purpose and has legal and factual support; violations can lead to sanctions."},
+    {tag:"FED. R. CIV. P.", prompt:"Defenses and Objections: When and How Presented; Motion for Judgment on the Pleadings; Consolidating Motions; Waiving Defenses; Pretrial Hearing", answer:"12", description:"Sets the main defenses and motions a defendant may raise before or instead of answering, including Rule 12(b) defenses, and explains when some defenses are waived if not raised on time."},
+    {tag:"FED. R. CIV. P.", prompt:"Counterclaim and Crossclaim", answer:"13", description:"Governs counterclaims against an opposing party and crossclaims against a coparty; some counterclaims are compulsory if they arise from the same transaction or occurrence."},
+    {tag:"FED. R. CIV. P.", prompt:"Third-Party Practice", answer:"14", description:"Allows a defending party to bring in a nonparty who may owe that defending party all or part of any liability to the plaintiff; this is impleader."},
+    {tag:"FED. R. CIV. P.", prompt:"Amended and Supplemental Pleadings", answer:"15", description:"Governs changes to pleadings. Courts should freely give leave to amend when justice requires, and supplemental pleadings may address events that happen later."},
+    {tag:"FED. R. CIV. P.", prompt:"Pretrial Conferences; Scheduling; Management", answer:"16", description:"Lets the judge actively manage the case through scheduling orders, deadlines, pretrial conferences, and other steps that prepare the case for trial or settlement."},
+    {tag:"FED. R. CIV. P.", prompt:"Multidistrict Litigation", answer:"16.1", description:"Provides special case-management procedures for multidistrict litigation (MDL), including leadership, discovery, coordination, and settlement-related issues."},
+    {tag:"FED. R. CIV. P.", prompt:"Plaintiff and Defendant; Capacity; Public Officers", answer:"17", description:"Requires the lawsuit to be brought by the real party in interest and addresses who has capacity to sue or be sued and when public officers are substituted."},
+    {tag:"FED. R. CIV. P.", prompt:"Joinder of Claims", answer:"18", description:"Allows a party to bring as many claims as it has against an opposing party, as long as jurisdiction and other procedural rules are satisfied."},
+    {tag:"FED. R. CIV. P.", prompt:"Required Joinder of Parties", answer:"19", description:"Requires certain necessary parties to be joined if feasible; if joinder is impossible, the court decides whether the case can fairly continue without them."},
+    {tag:"FED. R. CIV. P.", prompt:"Permissive Joinder of Parties", answer:"20", description:"Allows multiple plaintiffs or defendants to join one case when their claims arise from the same transaction or occurrence and share a common question of law or fact."},
+    {tag:"FED. R. CIV. P.", prompt:"Misjoinder and Nonjoinder of Parties", answer:"21", description:"A case is not dismissed just because parties were misjoined; the court may add, drop, or sever parties or claims."},
+    {tag:"FED. R. CIV. P.", prompt:"Interpleader", answer:"22", description:"Lets a stakeholder facing competing claims to the same property or obligation bring the claimants into one case so the court can decide who is entitled to it."},
+    {tag:"FED. R. CIV. P.", prompt:"Class Actions", answer:"23", description:"Sets the requirements for class actions, including numerosity, commonality, typicality, adequacy, the Rule 23(b) categories, certification, notice, settlement, and class counsel."},
+    {tag:"FED. R. CIV. P.", prompt:"Intervention", answer:"24", description:"Allows a nonparty to join an existing case either as of right when its interests may be harmed or, with the court\u2019s permission, when it shares a common issue with the case."},
+    {tag:"FED. R. CIV. P.", prompt:"Substitution of Parties", answer:"25", description:"Explains when another person may replace a party because of death, incompetence, transfer of interest, or a public officer leaving office."},
+    {tag:"FED. R. CIV. P.", prompt:"Duty to Disclose; General Provisions Governing Discovery", answer:"26", description:"Sets the basic rules for discovery, including required initial disclosures, the scope of discoverable information, proportionality, expert disclosures, and protective orders."},
+    {tag:"FED. R. CIV. P.", prompt:"Depositions by Oral Examination", answer:"30", description:"Governs oral depositions, including when they may be taken, notice requirements, limits on the number and length of depositions, and how the examination is conducted."},
+    {tag:"FED. R. CIV. P.", prompt:"Failure to Make Disclosures or to Cooperate in Discovery; Sanctions", answer:"37", description:"Allows a party to seek an order compelling discovery and lets the court impose sanctions when a party fails to comply with discovery obligations or court orders."},
+    {tag:"FED. R. CIV. P.", prompt:"Summary Judgment", answer:"56", description:"Allows the court to enter judgment without a trial when there is no genuine dispute of material fact and the moving party is entitled to judgment as a matter of law."},
+    {tag:"FED. R. CIV. P.", prompt:"Declaratory Judgment", answer:"57", description:"Provides the procedure for asking a federal court to declare the parties\u2019 legal rights under the Declaratory Judgment Act before further relief is necessary."},
+    {tag:"FED. R. CIV. P.", prompt:"Seizing a Person or Property", answer:"64", description:"Lets a federal court use available state-law remedies, such as attachment or garnishment, to secure a person or property before judgment unless federal law provides otherwise."},
+    {tag:"FED. R. CIV. P.", prompt:"Injunctions and Restraining Orders", answer:"65", description:"Governs temporary restraining orders (TROs) and injunctions, including notice, required findings, specificity, and security."},
+    {tag:"FED. R. CIV. P.", prompt:"Enforcing a Judgment for a Specific Act", answer:"70", description:"Gives courts tools to enforce a judgment requiring a specific act, including contempt, ordering someone else to perform the act, or transferring title."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Final decisions of district courts", answer:"1291", description:"Gives federal courts of appeals jurisdiction over \u201cfinal decisions\u201d of district courts; this is the basis of the final-judgment rule."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Interlocutory decisions", answer:"1292", description:"Allows immediate appeals of certain nonfinal orders, especially injunction orders, and sometimes permits appeal of an important controlling legal question before final judgment."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Federal question", answer:"1331", description:"Gives federal district courts subject-matter jurisdiction over civil cases \u201carising under\u201d the U.S. Constitution, federal statutes, or treaties; usually the federal issue must appear in the well-pleaded complaint."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Diversity of citizenship; amount in controversy; costs", answer:"1332", description:"Creates diversity jurisdiction when the amount in controversy exceeds $75,000 and the parties meet the citizenship requirements; ordinary diversity cases generally require complete diversity."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Supplemental jurisdiction", answer:"1367", description:"Allows a federal court with original jurisdiction over one claim to hear related state-law or other claims that are part of the same Article III case or controversy, subject to statutory limits."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Removal of civil actions", answer:"1441", description:"Allows a defendant to move a qualifying case from state court to federal court when the federal court could have heard the case originally, subject to removal restrictions."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Proceedings in forma pauperis", answer:"1915", description:"Allows a person who cannot afford court fees to proceed in forma pauperis and lets the court screen and dismiss certain meritless claims."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Taxation of costs", answer:"1920", description:"Lists the types of litigation expenses a federal court may award as taxable costs, such as filing fees, transcripts, witness fees, and copying costs."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Counsel\u2019s Liability for Excessive Costs", answer:"1927", description:"A court may make an attorney personally pay the extra costs, expenses, and attorney\u2019s fees caused when the attorney unreasonably and vexatiously multiplies the proceedings."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Interest", answer:"1961", description:"Requires post-judgment interest on federal money judgments and explains how the interest rate is calculated."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Creation of remedy", answer:"2201", description:"Lets a federal court issue a declaratory judgment stating the parties\u2019 legal rights in an actual controversy, even before coercive relief such as damages or an injunction is needed."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Further relief", answer:"2202", description:"After a declaratory judgment, the court may grant additional necessary or proper relief based on that declaration."},
+    {tag:"28 U.S.C. \u00a7", prompt:"Costs and fees", answer:"2412", description:"Governs when costs and attorney\u2019s fees may be awarded against the United States, including under the Equal Access to Justice Act (EAJA)."},
+    {tag:"42 U.S.C. \u00a7", prompt:"Proceedings in vindication of civil rights", answer:"1988", description:"Helps enforce federal civil-rights laws and allows prevailing parties in specified civil-rights cases to recover reasonable attorney\u2019s fees."},
+    {tag:"42 U.S.C. \u00a7", prompt:"Conspiracy to interfere with civil rights", answer:"1985", description:"Creates a civil claim for certain conspiracies that interfere with federal authority, obstruct justice, or deny equal protection or equal privileges."},
+    {tag:"42 U.S.C. \u00a7", prompt:"Civil action for deprivation of rights", answer:"1983", description:"Allows a person to sue someone acting \u201cunder color of state law\u201d for violating rights protected by the U.S. Constitution or federal law."},
+    {tag:"U.S. CONST. AMEND.", prompt:"Fifth Amendment (no official title; includes grand jury, double jeopardy, self-incrimination, due process, and takings protections)", answer:"5", description:"Protects against federal government violations of due process and includes the Takings Clause; in Civ Pro, the Due Process Clause limits federal governmental procedures."},
+    {tag:"U.S. CONST. AMEND.", prompt:"Fourteenth Amendment (no official title; includes citizenship, due process, and equal protection)", answer:"14", description:"Requires states to provide due process and equal protection; in Civ Pro, due process is especially important for personal jurisdiction and constitutionally adequate notice."},
+    {tag:"FLA. R. CIV. P.", prompt:"Proposals for Settlement", answer:"1.442", description:"Governs Florida proposals for settlement. If the rule and statute are satisfied and the final result crosses the required threshold, a party may recover attorney\u2019s fees."},
+    {tag:"FLA. R. CIV. P.", prompt:"Case Management; Pretrial Procedure", answer:"1.200", description:"Sets Florida\u2019s case-management and pretrial procedures, including scheduling, deadlines, case-management orders or conferences, and trial preparation."},
+    {tag:"FLA. R. CIV. P.", prompt:"Complex Litigation", answer:"1.201", description:"Creates more intensive case-management procedures for cases designated as complex, including early judicial oversight, scheduling, coordinated discovery, and trial preparation."},
+    {tag:"FLA. STAT. \u00a7", prompt:"Attorney\u2019s Fees; Sanctions for Unsupported Claims or Defenses", answer:"57.105", description:"Allows sanctions and attorney\u2019s fees when a party or attorney knew or should have known that a claim or defense lacked support in the material facts or existing law; generally includes a 21-day safe-harbor period to withdraw or correct the challenged filing."}
   ];
 
 
@@ -892,11 +917,21 @@
     lbStatus.hidden = true;
     lbList.hidden = false;
     lbList.innerHTML = '';
-    docs.forEach(function(d){
+    docs.forEach(function(d, idx){
       var data = d.data() || {};
       var li = document.createElement('li');
       var nameSpan = document.createElement('span');
       nameSpan.textContent = (data.name || '???');
+      if (idx === 0){
+        var star = document.createElement('span');
+        star.className = 'lb-star';
+        star.textContent = '★';
+        nameSpan.prepend(star);
+        var badge = document.createElement('span');
+        badge.className = 'lb-badge';
+        badge.textContent = 'Top Score';
+        nameSpan.appendChild(badge);
+      }
       var scoreSpan = document.createElement('span');
       scoreSpan.textContent = (typeof data.score === 'number' ? data.score : 0) + ' correct';
       li.appendChild(nameSpan);
@@ -911,7 +946,7 @@
       return;
     }
     try{
-      db.collection('leaderboard').orderBy('score','desc').limit(10).onSnapshot(
+      db.collection('leaderboard').orderBy('score','desc').limit(6).onSnapshot(
         function(snap){ renderLeaderboard(snap.docs); },
         function(){ lbStatus.textContent = 'Leaderboard unavailable right now.'; }
       );
@@ -1030,10 +1065,23 @@
     scoreDisplay.textContent = state.correctCount;
   }
 
+  function sizePromptText(text){
+    var len = text.length;
+    var size;
+    if (len <= 30) size = 26;
+    else if (len <= 45) size = 24;
+    else if (len <= 60) size = 21;
+    else if (len <= 80) size = 18;
+    else if (len <= 105) size = 16;
+    else size = 14;
+    return size;
+  }
+
   function renderRound(){
     var q = state.queue[0];
     promptTag.textContent = q.tag;
     promptText.textContent = q.prompt;
+    promptText.style.fontSize = sizePromptText(q.prompt).toString() + 'px';
     state.buffer = '';
     renderReadout();
   }
@@ -1103,7 +1151,7 @@
   function recordMiss(q, reason){
     var entry = state.missed.find(function(m){ return m.prompt === q.prompt && m.answer === q.answer; });
     if (!entry){
-      entry = { tag: q.tag, prompt: q.prompt, answer: q.answer, wrong: false, skipped: false };
+      entry = { tag: q.tag, prompt: q.prompt, answer: q.answer, description: q.description || '', wrong: false, skipped: false };
       state.missed.push(entry);
     }
     entry[reason] = true;
@@ -1226,6 +1274,23 @@
       statusSpan.className = 'review-status';
       statusSpan.textContent = statusText;
       li.appendChild(statusSpan);
+      if (m.description){
+        var descP = document.createElement('p');
+        descP.className = 'review-desc';
+        descP.textContent = m.description;
+        descP.hidden = true;
+        var toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'review-desc-toggle';
+        toggleBtn.textContent = 'See description';
+        toggleBtn.addEventListener('click', function(){
+          var isHidden = descP.hidden;
+          descP.hidden = !isHidden;
+          toggleBtn.textContent = isHidden ? 'Hide description' : 'See description';
+        });
+        li.appendChild(toggleBtn);
+        li.appendChild(descP);
+      }
       list.appendChild(li);
     });
     reviewMissed.appendChild(list);
