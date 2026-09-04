@@ -398,11 +398,6 @@
   .score-display{
     font-family:'Press Start 2P',monospace; font-size:20px; color:var(--lantern);
   }
-  .progress-track{
-    width:160px; height:10px; background:var(--coal-black-3); border:1px solid #000;
-  }
-  .progress-fill{ height:100%; background:var(--success); transition:width .2s; }
-
   .prompt-box{
     position:relative; z-index:2;
     background:rgba(20,17,15,.85);
@@ -412,7 +407,7 @@
     min-height:96px;
     display:flex; flex-direction:column; justify-content:center;
   }
-  .prompt-eyebrow{ font-size:10px; color:var(--lantern); letter-spacing:.1em; margin-bottom:8px;}
+  .prompt-eyebrow{ font-size:16px; color:var(--lantern); letter-spacing:.1em; margin-bottom:8px;}
   .prompt-text{ font-size:24px; line-height:1.35; }
 
   .answer-area{
@@ -459,7 +454,6 @@
     display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
   }
   #skipBtn{ font-size:11px; padding:12px 16px; }
-  #bankBtn{ font-size:12px; padding:14px 22px; animation:fadeUp .3s ease-out; }
 
   /* ================= REVIEW ("Dean's Fellow Session") ================= */
   #screen-review{
@@ -559,9 +553,8 @@
         <li>Press <b>ENTER</b> to submit your answer. Backspace fixes a typo first.</li>
         <li>Press <b>SPACEBAR</b> to skip a question you don't know — it comes back around at the end.</li>
         <li>Wrong answers cost nothing but time, so keep trying.</li>
-        <li>You have 60 seconds and need 14 of 20 correct to clear the level.</li>
-        <li>Hit 14 and you can bank your score, or keep going for more points before time runs out.</li>
-        <li>Miss the clock before 14 correct and you lose one of your 3 lives.</li>
+        <li>You have 60 seconds. However many you get right is your score.</li>
+        <li>You get 3 attempts each visit — every attempt posts your score to the leaderboard.</li>
       </ol>
       <div class="howto-tray"></div>
     </div>
@@ -617,10 +610,6 @@
         <span class="hud-label">Score</span>
         <span class="score-display" id="scoreDisplay">0</span>
       </div>
-      <div class="hud-block">
-        <span class="hud-label" id="progressLabel">Correct 0 / 20 · need 14 to clear</span>
-        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-      </div>
     </div>
 
     <div class="prompt-box">
@@ -647,7 +636,6 @@
       </div>
       <div class="answer-actions">
         <button class="btn secondary" id="skipBtn">Skip (Space)</button>
-        <button class="btn" id="bankBtn" hidden>🏁 Bank Score &amp; Finish</button>
       </div>
     </div>
   </section>
@@ -657,7 +645,7 @@
     <div class="howto-board review-board">
       <h2 class="howto-title" id="reviewTitle">DEAN'S FELLOW SESSION</h2>
       <p class="howto-sub" id="reviewSub">Level 1 review</p>
-      <p class="end-score" id="reviewScoreWrap" hidden>Score: <b id="reviewScore">0</b> pts</p>
+      <p class="end-score" id="reviewScoreWrap" hidden>Score: <b id="reviewScore">0</b> correct</p>
       <p class="review-eyebrow">Questions to review</p>
       <div id="reviewMissed"></div>
       <div class="howto-tray"></div>
@@ -739,15 +727,59 @@
     {tag:"FLA. R. CIV. P.", prompt:"Case management; pretrial procedure", answer:"1.200"},
     {tag:"FLA. R. CIV. P.", prompt:"Complex litigation", answer:"1.201"}
   ];
-  var ROUND_COUNT = 20;
-  var PASS_THRESHOLD = 14;
-  var POINTS_PER_CORRECT = 5;
+
 
   var COACH_TIPS = [
-    "Coach's corner: answer like you're through on goal — first touch, no hesitation.",
-    "Coach's corner: know your shape before kickoff. If you don't know the formation, you're already caught flat.",
-    "Coach's corner: a clean tackle beats a lucky guess. Read the prompt before you strike.",
-    "Coach's corner: 90 minutes, one result. Keep composure when the clock is running down."
+    "Coach's corner: You don’t have to be perfect; you just have to keep competing for the next play.",
+    "Coach's corner: The best teams aren’t the ones that never make mistakes—they’re the ones that respond together.",
+    "Coach's corner: Play with confidence, trust your teammates, and let the work you’ve put in take over.",
+    "Coach's corner: Every time you step on the field, you have a chance to set the standard for the person next to you.",
+    "Coach's corner: When the game gets difficult, that’s when your discipline and preparation matter most.",
+    "Coach's corner: Don’t waste energy worrying about the last play. Win the next moment.",
+    "Coach's corner: Your effort without the ball says just as much about you as what you do with it.",
+    "Coach's corner: Great teams communicate, compete, and stay connected even when the game isn’t going their way.",
+    "Coach's corner: Play with courage. The safest decision isn’t always the best decision.",
+    "Coach's corner: You can’t control every bounce, call, or result, but you can always control your response.",
+    "Coach's corner: When you’re tired, simplify the game, trust your training, and keep working for each other.",
+    "Coach's corner: The difference between good and great is often the willingness to do the small things consistently.",
+    "Coach's corner: Make the player beside you better, and the whole team becomes harder to beat.",
+    "Coach's corner: Confidence comes from preparation, so step onto the field knowing you’ve earned the right to believe in yourself.",
+    "Coach's corner: Don’t wait for someone else to change the game. Be the person who brings the energy.",
+    "Coach's corner: A strong team stays together when momentum shifts and finds a way to create its own.",
+    "Coach's corner: Compete with intensity, but play with composure. The best players can do both.",
+    "Coach's corner: The score may tell you who won, but your effort tells you who you are.",
+    "Coach's corner: Success isn’t one big moment—it’s hundreds of small decisions made the right way.",
+    "Coach's corner: Leave the field knowing you gave your teammates everything you had.",
+    "Coach's corner: The game will test you. Stay composed, stay connected, and trust the work you’ve done.",
+    "Coach's corner: Every challenge on the field is another opportunity to show what kind of teammate you are.",
+    "Coach's corner: You don’t need to control the whole game; just take care of the moment in front of you.",
+    "Coach's corner: The teams that stay disciplined the longest are usually the teams still standing at the end.",
+    "Coach's corner: Confidence grows when you keep doing the hard things the right way.",
+    "Coach's corner: When things get chaotic, be the player who brings calm, clarity, and purpose.",
+    "Coach's corner: Winning starts with habits long before the whistle ever blows.",
+    "Coach's corner: Your teammates should feel stronger because you are on the field with them.",
+    "Coach's corner: Play with urgency, but never lose your composure.",
+    "Coach's corner: The best response to a mistake is effort, communication, and the next smart decision.",
+    "Coach's corner: Great players make plays, but great teammates make everyone around them better.",
+    "Coach's corner: If you want the ball in the big moments, earn that confidence in the small moments.",
+    "Coach's corner: Don’t let one bad play become two. Reset quickly and get back into the game.",
+    "Coach's corner: Every sprint, recovery run, and second effort is a chance to show what you stand for.",
+    "Coach's corner: The game rewards players who are willing to think, communicate, and work for one another.",
+    "Coach's corner: Your attitude when things are difficult matters more than your attitude when things are easy.",
+    "Coach's corner: Play with enough courage to make something happen and enough discipline to know when not to.",
+    "Coach's corner: The strongest teams don’t point fingers; they solve problems together.",
+    "Coach's corner: You can always give your teammates one more run, one more tackle, and one more effort.",
+    "Coach's corner: The scoreboard changes constantly. Your standard should not.",
+    "Coach's corner: Trust the player beside you enough to do your job completely.",
+    "Coach's corner: Energy is contagious, so make sure yours is helping the team.",
+    "Coach's corner: Don’t chase perfection. Chase consistency, effort, and improvement.",
+    "Coach's corner: A tough game can either frustrate you or reveal how prepared you really are.",
+    "Coach's corner: The moment you stop communicating is the moment the game becomes harder than it needs to be.",
+    "Coach's corner: Be patient enough to build the play and brave enough to attack when the moment arrives.",
+    "Coach's corner: Good teams compete when they feel great. Great teams compete when they don’t.",
+    "Coach's corner: The most important play in the game is always the one you can still influence.",
+    "Coach's corner: Play in a way that makes your teammates trust you when the pressure is highest.",
+    "Coach's corner: At the end of the game, make sure your effort is something you never have to question."
   ];
 
   var BLOCKLIST = ["fuck","shit","bitch","cunt","asshole","nigger","fag","faggot","whore","slut","dick","piss off","retard"];
@@ -762,7 +794,6 @@
     buffer: "",
     timeLeft: 60,
     timerId: null,
-    bankUnlocked: false,
     ended: false
   };
 
@@ -788,14 +819,11 @@
   var gameLives = document.getElementById('gameLives');
   var timerDisplay = document.getElementById('timerDisplay');
   var scoreDisplay = document.getElementById('scoreDisplay');
-  var progressLabel = document.getElementById('progressLabel');
-  var progressFill = document.getElementById('progressFill');
   var promptTag = document.getElementById('promptTag');
   var promptText = document.getElementById('promptText');
   var digitReadout = document.getElementById('digitReadout');
   var keypad = document.getElementById('keypad');
   var skipBtn = document.getElementById('skipBtn');
-  var bankBtn = document.getElementById('bankBtn');
   var reviewTitle = document.getElementById('reviewTitle');
   var reviewSub = document.getElementById('reviewSub');
   var reviewScoreWrap = document.getElementById('reviewScoreWrap');
@@ -836,7 +864,7 @@
     projectId: "civpro-arcade",
     storageBucket: "civpro-arcade.firebasestorage.app",
     messagingSenderId: "567645446891",
-    appId: "1:567645446891:web:bfc402f744559d7e1c54ae",
+    appId: "1:567645446891:web:bfc402f744559d7e1c54ae"
   };
 
   function initFirebaseDb(){
@@ -870,7 +898,7 @@
       var nameSpan = document.createElement('span');
       nameSpan.textContent = (data.name || '???');
       var scoreSpan = document.createElement('span');
-      scoreSpan.textContent = (typeof data.score === 'number' ? data.score : 0) + 's';
+      scoreSpan.textContent = (typeof data.score === 'number' ? data.score : 0) + ' correct';
       li.appendChild(nameSpan);
       li.appendChild(scoreSpan);
       lbList.appendChild(li);
@@ -938,7 +966,7 @@
     void riderWrap.offsetWidth;
     riderWrap.style.animation = '';
     renderLives(introLives);
-    coachTip.innerHTML = COACH_TIPS[Math.floor(Math.random()*COACH_TIPS.length)];
+    coachTip.innerHTML = nextCoachTip();
     retryNote.textContent = note || '';
     readyBtn.disabled = false;
   }
@@ -949,6 +977,12 @@
   });
 
   /* ---------------- level 1 ---------------- */
+  var coachTipQueue = [];
+  function nextCoachTip(){
+    if (coachTipQueue.length === 0) coachTipQueue = shuffle(COACH_TIPS);
+    return coachTipQueue.shift();
+  }
+
   function shuffle(arr){
     var a = arr.slice();
     for (var i=a.length-1;i>0;i--){
@@ -959,14 +993,12 @@
   }
 
   function startLevel1(){
-    state.queue = shuffle(QUESTIONS).slice(0, ROUND_COUNT);
+    state.queue = shuffle(QUESTIONS);
     state.missed = [];
     state.correctCount = 0;
     state.buffer = '';
     state.timeLeft = 60;
     state.ended = false;
-    state.bankUnlocked = false;
-    bankBtn.hidden = true;
     show('game');
     renderLives(gameLives);
     updateScoreDisplay();
@@ -982,11 +1014,7 @@
       state.timeLeft = 0;
       updateTimerDisplay();
       clearInterval(state.timerId);
-      if (state.correctCount >= PASS_THRESHOLD){
-        clearLevel();
-      } else {
-        failAttempt();
-      }
+      endAttempt();
       return;
     }
     updateTimerDisplay();
@@ -999,9 +1027,7 @@
   }
 
   function updateScoreDisplay(){
-    scoreDisplay.textContent = state.correctCount * POINTS_PER_CORRECT;
-    progressLabel.textContent = 'Correct ' + state.correctCount + ' / ' + ROUND_COUNT + ' · need ' + PASS_THRESHOLD + ' to clear';
-    progressFill.style.width = Math.round((state.correctCount/PASS_THRESHOLD)*100) + '%';
+    scoreDisplay.textContent = state.correctCount;
   }
 
   function renderRound(){
@@ -1061,9 +1087,8 @@
       state.correctCount++;
       state.queue.shift();
       updateScoreDisplay();
-      checkThreshold();
       if (state.queue.length === 0){
-        clearLevel();
+        endAttempt();
         return;
       }
       setTimeout(renderRound, 180);
@@ -1097,13 +1122,6 @@
     renderRound();
   }
 
-  function checkThreshold(){
-    if (!state.bankUnlocked && state.correctCount >= PASS_THRESHOLD){
-      state.bankUnlocked = true;
-      bankBtn.hidden = false;
-    }
-  }
-
   keypad.addEventListener('click', function(e){
     var btn = e.target.closest('.key');
     if (!btn) return;
@@ -1113,7 +1131,6 @@
     else appendChar(k);
   });
   skipBtn.addEventListener('click', skipRound);
-  bankBtn.addEventListener('click', function(){ if (!state.ended) clearLevel(); });
 
   var CODE_TO_CHAR = {
     'Digit0':'0','Digit1':'1','Digit2':'2','Digit3':'3','Digit4':'4',
@@ -1131,29 +1148,32 @@
     if (ch){ e.preventDefault(); appendChar(ch); }
   });
 
-  function failAttempt(){
+  function endAttempt(){
     state.ended = true;
+    clearInterval(state.timerId);
     state.lives--;
+    var score = state.correctCount;
+    submitScore(state.name, score);
     if (state.lives <= 0){
       showReview({
         mode: 'gameover',
-        sub: "Full time, out of lives. No shame — sub back in when you're ready.",
-        score: null,
+        sub: "Time's up \u2014 " + score + " correct. That was your last attempt this sitting.",
+        score: score,
         showGo: false,
-        saving: false
+        saving: true
       });
     } else {
       showReview({
         mode: 'retry',
-        sub: 'Missed the clock at ' + state.correctCount + '/' + PASS_THRESHOLD + ' — ' + state.lives + ' ' + (state.lives===1 ? 'life' : 'lives') + ' left.',
-        score: null,
+        sub: "Time's up \u2014 " + score + " correct. " + state.lives + " " + (state.lives===1 ? 'attempt' : 'attempts') + " left.",
+        score: score,
         showGo: true,
-        saving: false
+        saving: true
       });
     }
   }
 
-  var REVIEW_TITLE_COLOR = { clear: 'var(--lantern-dark, #b07a1c)', retry: '#2a2418', gameover: 'var(--brick-red)' };
+  var REVIEW_TITLE_COLOR = { retry: '#2a2418', gameover: 'var(--brick-red)' };
   var lastReviewMode = null;
 
   function showReview(opts){
@@ -1211,29 +1231,12 @@
     reviewMissed.appendChild(list);
   }
 
-  function clearLevel(){
-    state.ended = true;
-    clearInterval(state.timerId);
-    progressFill.style.width = '100%';
-    var bonus = Math.ceil(state.timeLeft);
-    var score = state.correctCount * POINTS_PER_CORRECT + bonus;
-    submitScore(state.name, score);
-    showReview({
-      mode: 'clear',
-      sub: 'Level 1 clear — nice work.',
-      score: score,
-      showGo: true,
-      saving: true
-    });
-  }
-
   function goHome(){
     show('home');
   }
 
   reviewHomeBtn.addEventListener('click', goHome);
   reviewGoBtn.addEventListener('click', function(){
-    if (lastReviewMode === 'clear') state.lives = 3;
     goToIntro('');
   });
 
