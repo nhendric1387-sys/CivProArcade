@@ -33,6 +33,7 @@
     --success-dark:#4a7038;
     --skin:#e3ab7c;
     --metal:#9aa6ac;
+    --scholar-purple:#5b3a7a;
   }
 
   *{box-sizing:border-box; touch-action:manipulation;}
@@ -63,7 +64,7 @@
   #cabinet{
     position:relative;
     width:100%;
-    max-width:920px;
+    max-width:1200px;
     background:var(--coal-black-2);
     border:6px solid var(--timber);
     border-radius:4px;
@@ -167,17 +168,41 @@
     letter-spacing:.02em;
   }
 
-  .name-card{
-    background:rgba(20,17,15,.72);
-    border:3px solid var(--timber);
-    padding:20px 24px;
-    width:min(420px,90%);
+  .name-error{
+    min-height:20px; font-size:15px; color:var(--brick-red); text-align:left;
   }
-  .name-card label{
-    display:block; font-size:16px; letter-spacing:.1em;
-    color:var(--paper-dim); margin-bottom:10px; text-transform:uppercase;
+
+  /* ---------- High-score name modal ---------- */
+  .modal-overlay{
+    position:absolute; inset:0; z-index:70;
+    background:rgba(10,8,6,.82);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
   }
-  #playerName{
+  .modal-card{
+    background:var(--coal-black-2);
+    border:3px solid var(--lantern);
+    box-shadow:0 0 30px rgba(242,182,50,.35), 0 20px 50px rgba(0,0,0,.5);
+    padding:28px 26px;
+    width:min(400px,100%);
+    text-align:center;
+  }
+  .modal-card.pop-in{ animation:cardUnlock .8s ease; }
+  .modal-eyebrow{
+    font-family:'Press Start 2P',monospace; font-size:12px;
+    color:var(--lantern); letter-spacing:.08em; margin:0 0 10px;
+  }
+  .modal-title{
+    font-family:'Press Start 2P',monospace; font-size:16px;
+    color:var(--paper); margin:0 0 14px; line-height:1.4;
+  }
+  .modal-sub{ font-size:17px; color:var(--paper-dim); margin:0 0 18px; line-height:1.4; }
+  .modal-sub b{ color:var(--lantern); }
+  .modal-card label{
+    display:block; font-size:15px; letter-spacing:.08em;
+    color:var(--paper-dim); margin-bottom:8px; text-transform:uppercase; text-align:left;
+  }
+  #highscoreName{
     width:100%;
     font-family:'VT323',monospace;
     font-size:24px;
@@ -185,12 +210,10 @@
     background:var(--coal-black);
     border:2px solid var(--slate-light);
     color:var(--paper);
-    margin-bottom:6px;
+    margin-bottom:4px;
   }
-  #playerName::placeholder{ color:var(--dust); }
-  .name-error{
-    min-height:20px; font-size:15px; color:var(--brick-red); text-align:left;
-  }
+  #highscoreName::placeholder{ color:var(--dust); }
+  .modal-actions{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:16px; }
 
   .cabinet-grid{
     position:relative; z-index:2;
@@ -213,6 +236,11 @@
   .game-card.ready:hover{ border-color:var(--lantern); transform:translateY(-2px); }
   .game-card.ready:active{ transform:translateY(1px); }
   .game-card.locked{ cursor:not-allowed; opacity:.72; }
+  @keyframes cardUnlock{
+    0%{ box-shadow:0 0 0 rgba(242,182,50,0); border-color:var(--timber); }
+    40%{ box-shadow:0 0 20px rgba(242,182,50,.85); border-color:var(--lantern); }
+    100%{ box-shadow:0 0 0 rgba(242,182,50,0); border-color:var(--timber); }
+  }
   .game-card.ghost{
     border-style:dashed; border-color:var(--slate); opacity:.5;
     display:flex; align-items:center; justify-content:center; text-align:center;
@@ -322,7 +350,7 @@
   }
   .whiteboard{
     position:absolute; top:22px; left:50%; transform:translateX(-50%);
-    width:360px; height:140px;
+    width:min(360px, calc(100% - 40px)); height:140px;
     background:#f4f1ea;
     border:6px solid #c9c2b0;
     box-shadow:0 6px 0 rgba(0,0,0,.3);
@@ -434,8 +462,20 @@
     margin-bottom:18px;
     min-height:96px;
     display:flex; flex-direction:column; justify-content:center;
+    text-align:center;
   }
-  .prompt-eyebrow{ font-size:23px; color:var(--lantern); letter-spacing:.08em; margin-bottom:8px;}
+  .prompt-eyebrow{
+    display:inline-block;
+    font-size:20px; letter-spacing:.06em;
+    padding:5px 12px; margin-bottom:10px;
+    color:var(--paper); background:var(--timber);
+  }
+  .prompt-eyebrow svg{ vertical-align:-2px; margin-right:5px; width:15px; height:15px; }
+  .tag-frcp{ background:var(--suit-navy); }
+  .tag-usc{ background:var(--success-dark); }
+  .tag-const{ background:var(--brick-red-dark); }
+  .tag-aba{ background:var(--scholar-purple); }
+  .tag-fla{ background:var(--lantern-dim); color:var(--coal-black); }
   .prompt-text{ font-size:24px; line-height:1.35; }
 
   .answer-area{
@@ -528,6 +568,21 @@
   }
   .end-actions{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:22px; }
   .sub-status{ font-size:14px; color:var(--dust); margin-top:10px; min-height:18px; }
+
+  /* ---------------- mobile ---------------- */
+  @media (max-width:480px){
+    body{ padding:10px; }
+    .screen{ padding:18px 14px 18px; min-height:0; }
+    .home-title{ font-size:28px; }
+    .modal-card{ padding:20px 18px; }
+    .prompt-box{ padding:16px 14px; }
+    .prompt-eyebrow{ font-size:16px; padding:4px 9px; }
+    .digit-readout{ min-width:0; width:100%; max-width:220px; padding:12px 16px; font-size:26px; }
+    .keypad{ grid-template-columns:repeat(3, minmax(0,1fr)); width:100%; max-width:260px; }
+    .key{ width:auto; }
+    .howto-board{ padding:20px 18px 16px; }
+    .game-hud{ gap:10px; }
+  }
 </style>
 </head>
 <body>
@@ -540,12 +595,6 @@
       <p class="eyebrow">A Civ Pro Arcade</p>
       <h1 class="home-title">ARE WE<br>READY?</h1>
       <p class="home-sub">Pick your game</p>
-
-      <div class="name-card">
-        <label for="playerName">Enter your name</label>
-        <input id="playerName" type="text" maxlength="16" placeholder="e.g. Leaky" autocomplete="off">
-        <div class="name-error" id="nameError"></div>
-      </div>
     </div>
 
     <div class="cabinet-grid" id="cabinetGrid"></div>
@@ -630,15 +679,15 @@
     <div class="answer-area">
       <div class="digit-readout" id="digitReadout">—</div>
       <div class="keypad" id="keypad">
-        <button class="key" type="button" data-key="7">7</button>
-        <button class="key" type="button" data-key="8">8</button>
-        <button class="key" type="button" data-key="9">9</button>
-        <button class="key" type="button" data-key="4">4</button>
-        <button class="key" type="button" data-key="5">5</button>
-        <button class="key" type="button" data-key="6">6</button>
         <button class="key" type="button" data-key="1">1</button>
         <button class="key" type="button" data-key="2">2</button>
         <button class="key" type="button" data-key="3">3</button>
+        <button class="key" type="button" data-key="4">4</button>
+        <button class="key" type="button" data-key="5">5</button>
+        <button class="key" type="button" data-key="6">6</button>
+        <button class="key" type="button" data-key="7">7</button>
+        <button class="key" type="button" data-key="8">8</button>
+        <button class="key" type="button" data-key="9">9</button>
         <button class="key" type="button" data-key=".">.</button>
         <button class="key" type="button" data-key="0">0</button>
         <button class="key" type="button" data-key="back">⌫</button>
@@ -666,6 +715,22 @@
     </div>
     <p class="sub-status" id="reviewSubStatus"></p>
   </section>
+
+  <!-- ===== HIGH SCORE NAME MODAL ===== -->
+  <div class="modal-overlay" id="highscoreModal" hidden>
+    <div class="modal-card">
+      <p class="modal-eyebrow">NEW HIGH SCORE</p>
+      <h2 class="modal-title">You made the leaderboard!</h2>
+      <p class="modal-sub">You scored <b id="highscoreScoreText">0</b> correct in <span id="highscoreGameText">this game</span>.</p>
+      <label for="highscoreName">Enter your name</label>
+      <input id="highscoreName" type="text" maxlength="16" placeholder="e.g. Leaky" autocomplete="off">
+      <div class="name-error" id="highscoreNameError"></div>
+      <div class="modal-actions">
+        <button class="btn" id="highscoreSaveBtn">Save Score</button>
+        <button class="btn secondary" id="highscoreSkipBtn">No thanks</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -845,7 +910,6 @@
 
   /* ---------------- state ---------------- */
   var state = {
-    name: "",
     gameId: null,
     lives: 3,
     queue: [],
@@ -869,8 +933,6 @@
     Object.keys(screens).forEach(function(k){ screens[k].hidden = (k !== name); });
   }
 
-  var playerNameInput = document.getElementById('playerName');
-  var nameError = document.getElementById('nameError');
   var cabinetGrid = document.getElementById('cabinetGrid');
   var howtoSubEl = document.getElementById('howtoSub');
   var howtoRulesEl = document.getElementById('howtoRules');
@@ -895,6 +957,13 @@
   var reviewHomeBtn = document.getElementById('reviewHomeBtn');
   var reviewSubStatus = document.getElementById('reviewSubStatus');
   var riderWrap = document.getElementById('riderWrap');
+  var highscoreModal = document.getElementById('highscoreModal');
+  var highscoreNameInput = document.getElementById('highscoreName');
+  var highscoreNameError = document.getElementById('highscoreNameError');
+  var highscoreScoreText = document.getElementById('highscoreScoreText');
+  var highscoreGameText = document.getElementById('highscoreGameText');
+  var highscoreSaveBtn = document.getElementById('highscoreSaveBtn');
+  var highscoreSkipBtn = document.getElementById('highscoreSkipBtn');
 
   /* ---------------- name validation ---------------- */
   function cleanName(raw){
@@ -905,13 +974,12 @@
     var low = v.toLowerCase();
     return BLOCKLIST.some(function(bad){ return low.indexOf(bad) !== -1; });
   }
-  function validateName(){
-    var v = cleanName(playerNameInput.value);
-    if (v.length < 2){ nameError.textContent = 'Name needs at least 2 characters.'; return null; }
-    if (v.length > 16){ nameError.textContent = 'Keep it to 16 characters.'; return null; }
-    if (nameIsBlocked(v)){ nameError.textContent = 'Pick a courtroom-appropriate name.'; return null; }
-    nameError.textContent = '';
-    return v;
+  function validateNameValue(raw){
+    var v = cleanName(raw);
+    if (v.length < 2) return { ok:false, error:'Name needs at least 2 characters.' };
+    if (v.length > 16) return { ok:false, error:'Keep it to 16 characters.' };
+    if (nameIsBlocked(v)) return { ok:false, error:'Pick a courtroom-appropriate name.' };
+    return { ok:true, value:v };
   }
 
   /* ---------------- leaderboard (Firebase Firestore, with Claude-artifact fallback) ---------------- */
@@ -945,6 +1013,8 @@
   var lbList = document.getElementById('leaderboardList');
 
   function renderLeaderboard(docs){
+    currentLeaderboardDocs = docs;
+    lbReady = true;
     if (!docs.length){
       lbStatus.textContent = 'No scores yet — be the first.';
       lbStatus.hidden = false;
@@ -983,9 +1053,13 @@
      under the current rules, and the one composite index (game + score)
      already covers every game. */
   var currentLbUnsub = null;
+  var currentLeaderboardDocs = [];
+  var lbReady = false;
 
   function subscribeLeaderboard(gameId){
     if (currentLbUnsub){ currentLbUnsub(); currentLbUnsub = null; }
+    lbReady = false;
+    currentLeaderboardDocs = [];
     lbStatus.textContent = 'Loading…';
     lbStatus.hidden = false;
     lbList.hidden = true;
@@ -1093,14 +1167,6 @@
   }
 
   function selectGame(game){
-    var v = validateName();
-    if (!v){
-      playerNameInput.focus();
-      var card = document.querySelector('.name-card');
-      if (card && card.scrollIntoView) card.scrollIntoView({behavior:'smooth', block:'center'});
-      return;
-    }
-    state.name = v;
     state.gameId = game.id;
     state.lives = 3;
     renderHowto(game);
@@ -1208,9 +1274,31 @@
     return size;
   }
 
+  var FL_ICON_SVG = '<svg viewBox="0 0 8 8" width="15" height="15" aria-hidden="true" style="shape-rendering:crispEdges;">' +
+    '<rect x="5" y="0" width="3" height="1" fill="currentColor"/>' +
+    '<rect x="0" y="1" width="8" height="1" fill="currentColor"/>' +
+    '<rect x="5" y="2" width="3" height="1" fill="currentColor"/>' +
+    '<rect x="5" y="3" width="3" height="1" fill="currentColor"/>' +
+    '<rect x="5" y="4" width="2" height="1" fill="currentColor"/>' +
+    '<rect x="5" y="5" width="2" height="1" fill="currentColor"/>' +
+    '<rect x="6" y="6" width="1" height="1" fill="currentColor"/>' +
+    '<rect x="6" y="7" width="1" height="1" fill="currentColor"/>' +
+    '</svg>';
+
+  function getTagCategory(tag){
+    if (tag.indexOf('FLA.') === 0) return 'fla';
+    if (tag.indexOf('U.S.C.') !== -1) return 'usc';
+    if (tag.indexOf('CONST.') !== -1) return 'const';
+    if (tag.indexOf('ABA') === 0) return 'aba';
+    if (tag.indexOf('FED. R. CIV. P.') === 0) return 'frcp';
+    return 'default';
+  }
+
   function renderRound(){
     var q = state.queue[0];
-    promptTag.textContent = q.tag;
+    var cat = getTagCategory(q.tag);
+    promptTag.className = 'prompt-eyebrow tag-' + cat;
+    promptTag.innerHTML = (cat === 'fla' ? FL_ICON_SVG : '') + q.tag;
     promptText.textContent = q.prompt;
     promptText.style.fontSize = sizePromptText(q.prompt).toString() + 'px';
     state.buffer = '';
@@ -1327,26 +1415,86 @@
     if (ch){ e.preventDefault(); appendChar(ch); }
   });
 
+  var rememberedName = '';
+  var pendingScore = 0;
+  var pendingMode = 'retry';
+
+  function currentScoreQualifies(score){
+    if (!lbReady) return false;
+    if (currentLeaderboardDocs.length < 6) return true;
+    var lowestDoc = currentLeaderboardDocs[currentLeaderboardDocs.length - 1];
+    var lowestScore = (lowestDoc.data() || {}).score || 0;
+    return score >= lowestScore;
+  }
+
+  function reviewSubFor(mode, score, saved){
+    var livesText = state.lives + ' ' + (state.lives === 1 ? 'attempt' : 'attempts') + ' left.';
+    if (mode === 'gameover'){
+      return "Time's up \u2014 " + score + " correct. " + (saved ? 'You made the leaderboard! ' : '') + 'That was your last attempt this sitting.';
+    }
+    return "Time's up \u2014 " + score + " correct. " + (saved ? 'You made the leaderboard! ' : '') + livesText;
+  }
+
+  function proceedToReview(mode, score, saved){
+    showReview({
+      mode: mode,
+      sub: reviewSubFor(mode, score, saved),
+      score: score,
+      saving: saved
+    });
+  }
+
+  function showHighscoreModal(score, mode){
+    pendingScore = score;
+    pendingMode = mode;
+    highscoreScoreText.textContent = score;
+    highscoreGameText.textContent = (getGame(state.gameId) || {}).title || 'this game';
+    highscoreNameError.textContent = '';
+    highscoreNameInput.value = rememberedName;
+    highscoreModal.hidden = false;
+    var card = highscoreModal.querySelector('.modal-card');
+    card.classList.remove('pop-in');
+    void card.offsetWidth;
+    card.classList.add('pop-in');
+    setTimeout(function(){ highscoreNameInput.focus(); highscoreNameInput.select(); }, 50);
+  }
+
+  function hideHighscoreModal(){
+    highscoreModal.hidden = true;
+  }
+
+  function saveHighscore(){
+    var result = validateNameValue(highscoreNameInput.value);
+    if (!result.ok){
+      highscoreNameError.textContent = result.error;
+      highscoreNameInput.focus();
+      return;
+    }
+    rememberedName = result.value;
+    submitScore(result.value, pendingScore, state.gameId);
+    hideHighscoreModal();
+    proceedToReview(pendingMode, pendingScore, true);
+  }
+
+  highscoreSaveBtn.addEventListener('click', saveHighscore);
+  highscoreSkipBtn.addEventListener('click', function(){
+    hideHighscoreModal();
+    proceedToReview(pendingMode, pendingScore, false);
+  });
+  highscoreNameInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); saveHighscore(); }
+  });
+
   function endAttempt(){
     state.ended = true;
     clearInterval(state.timerId);
     state.lives--;
     var score = state.correctCount;
-    submitScore(state.name, score, state.gameId);
-    if (state.lives <= 0){
-      showReview({
-        mode: 'gameover',
-        sub: "Time's up \u2014 " + score + " correct. That was your last attempt this sitting.",
-        score: score,
-        saving: true
-      });
+    var mode = (state.lives <= 0) ? 'gameover' : 'retry';
+    if (currentScoreQualifies(score)){
+      showHighscoreModal(score, mode);
     } else {
-      showReview({
-        mode: 'retry',
-        sub: "Time's up \u2014 " + score + " correct. " + state.lives + " " + (state.lives===1 ? 'attempt' : 'attempts') + " left.",
-        score: score,
-        saving: true
-      });
+      proceedToReview(mode, score, false);
     }
   }
 
