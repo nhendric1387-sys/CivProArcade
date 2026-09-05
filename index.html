@@ -523,6 +523,86 @@
   }
   #skipBtn{ font-size:11px; padding:12px 16px; }
 
+  .game-body{
+    display:flex; gap:20px; align-items:flex-start; flex:1;
+  }
+  .game-main{
+    flex:1; min-width:0; display:flex; flex-direction:column;
+  }
+  .reference-panel{
+    position:relative; z-index:2;
+    width:230px; flex-shrink:0;
+    background:rgba(20,17,15,.6);
+    border:2px solid var(--timber);
+    padding:12px 14px;
+  }
+  .reference-panel-head{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:8px; margin-bottom:10px;
+  }
+  .reference-panel-head span{
+    font-family:'Press Start 2P',monospace; font-size:10px;
+    color:var(--lantern); letter-spacing:.06em;
+  }
+  .reference-toggle{
+    font-family:'VT323',monospace; font-size:14px;
+    background:var(--slate); color:var(--paper);
+    padding:5px 9px; border:none;
+  }
+  .reference-toggle:hover{ filter:brightness(1.1); }
+  .reference-list{
+    list-style:none; margin:0; padding:0;
+    font-family:'VT323',monospace; font-size:15px; line-height:1.5;
+    color:var(--paper-dim);
+    max-height:400px; overflow-y:auto;
+  }
+  .reference-list li{ padding:2px 0; border-bottom:1px dashed rgba(148,138,124,.25); }
+
+  /* ================= ORDER GATE ================= */
+  #screen-order{
+    align-items:center;
+  }
+  .order-status{
+    text-align:center; font-size:16px; color:#6b6152; margin:10px 0 0;
+  }
+  .order-body{
+    width:100%; max-width:900px;
+    display:flex; flex-direction:column; gap:18px;
+    margin-top:22px;
+  }
+  .order-slots{
+    display:grid; grid-template-columns:1fr; gap:6px;
+  }
+  @media (min-width:640px){
+    .order-slots{ grid-template-columns:1fr 1fr; }
+  }
+  .order-slot{
+    display:flex; align-items:center; gap:8px;
+    padding:8px 12px;
+    border:2px dashed var(--slate-light);
+    font-family:'VT323',monospace; font-size:17px;
+    min-height:38px;
+  }
+  .order-slot.filled{ border-style:solid; border-color:var(--lantern); cursor:pointer; }
+  .order-slot.filled:hover{ filter:brightness(1.1); }
+  .order-slot.locked{ border-style:solid; border-color:var(--success); background:rgba(110,164,90,.15); cursor:default; }
+  .order-slot-num{ color:var(--dust); flex-shrink:0; width:26px; }
+  .order-slot-label{ color:var(--paper); }
+  .order-pool{
+    display:flex; flex-wrap:wrap; gap:8px;
+    justify-content:center;
+    padding-top:8px; border-top:1px dashed var(--slate);
+  }
+  .order-tile{
+    font-family:'VT323',monospace; font-size:16px;
+    background:var(--coal-black); color:var(--paper);
+    border:2px solid var(--slate-light);
+    padding:8px 14px;
+  }
+  .order-tile:hover{ border-color:var(--lantern); }
+  .order-tile:active{ transform:translate(2px,2px); }
+  #orderContinueBtn{ margin-top:22px; }
+
   /* ================= REVIEW ("Dean's Fellow Session") ================= */
   #screen-review{
     background: linear-gradient(180deg,#3c3323 0%, #2a2418 55%, var(--coal-black) 100%);
@@ -582,6 +662,10 @@
     .key{ width:auto; }
     .howto-board{ padding:20px 18px 16px; }
     .game-hud{ gap:10px; }
+    .game-body{ flex-direction:column; }
+    .reference-panel{ width:100%; }
+    .reference-list{ max-height:240px; }
+    .order-body{ margin-top:16px; }
   }
 </style>
 </head>
@@ -648,6 +732,22 @@
     </div>
   </section>
 
+  <!-- ===== ORDER GATE ===== -->
+  <section class="screen" id="screen-order" hidden>
+    <div class="howto-board order-intro">
+      <h2 class="howto-title">DEAN'S FELLOW SESSION</h2>
+      <p class="howto-sub">Put the 20 Questions in order</p>
+      <p class="order-status" id="orderStatus">Tap a title below to place it in the next open slot.</p>
+    </div>
+
+    <div class="order-body">
+      <div class="order-slots" id="orderSlots"></div>
+      <div class="order-pool" id="orderPool"></div>
+    </div>
+
+    <button class="btn" id="orderContinueBtn" hidden>Start the Drill</button>
+  </section>
+
   <!-- ===== LEVEL 1 GAME ===== -->
   <section class="screen" id="screen-game" hidden>
     <div class="mine-beam top"></div>
@@ -671,30 +771,42 @@
       </div>
     </div>
 
-    <div class="prompt-box">
-      <p class="prompt-eyebrow" id="promptTag">FED. R. CIV. P.</p>
-      <p class="prompt-text" id="promptText">—</p>
-    </div>
+    <div class="game-body">
+      <div class="game-main">
+        <div class="prompt-box">
+          <p class="prompt-eyebrow" id="promptTag">FED. R. CIV. P.</p>
+          <p class="prompt-text" id="promptText">—</p>
+        </div>
 
-    <div class="answer-area">
-      <div class="digit-readout" id="digitReadout">—</div>
-      <div class="keypad" id="keypad">
-        <button class="key" type="button" data-key="1">1</button>
-        <button class="key" type="button" data-key="2">2</button>
-        <button class="key" type="button" data-key="3">3</button>
-        <button class="key" type="button" data-key="4">4</button>
-        <button class="key" type="button" data-key="5">5</button>
-        <button class="key" type="button" data-key="6">6</button>
-        <button class="key" type="button" data-key="7">7</button>
-        <button class="key" type="button" data-key="8">8</button>
-        <button class="key" type="button" data-key="9">9</button>
-        <button class="key" type="button" data-key=".">.</button>
-        <button class="key" type="button" data-key="0">0</button>
-        <button class="key" type="button" data-key="back">⌫</button>
-        <button class="key wide" type="button" data-key="enter">ENTER</button>
+        <div class="answer-area">
+          <div class="digit-readout" id="digitReadout">—</div>
+          <div class="keypad" id="keypad">
+            <button class="key" type="button" data-key="1">1</button>
+            <button class="key" type="button" data-key="2">2</button>
+            <button class="key" type="button" data-key="3">3</button>
+            <button class="key" type="button" data-key="4">4</button>
+            <button class="key" type="button" data-key="5">5</button>
+            <button class="key" type="button" data-key="6">6</button>
+            <button class="key" type="button" data-key="7">7</button>
+            <button class="key" type="button" data-key="8">8</button>
+            <button class="key" type="button" data-key="9">9</button>
+            <button class="key" type="button" data-key=".">.</button>
+            <button class="key" type="button" data-key="0">0</button>
+            <button class="key" type="button" data-key="back">⌫</button>
+            <button class="key wide" type="button" data-key="enter">ENTER</button>
+          </div>
+          <div class="answer-actions">
+            <button class="btn secondary" id="skipBtn">Skip (Space)</button>
+          </div>
+        </div>
       </div>
-      <div class="answer-actions">
-        <button class="btn secondary" id="skipBtn">Skip (Space)</button>
+
+      <div class="reference-panel" id="referencePanel" hidden>
+        <div class="reference-panel-head">
+          <span>20 Questions</span>
+          <button type="button" class="reference-toggle" id="referenceToggleBtn">Hide List</button>
+        </div>
+        <ol class="reference-list" id="referenceList"></ol>
       </div>
     </div>
   </section>
@@ -810,6 +922,91 @@
     {tag:"FLA. STAT. \u00a7", prompt:"Attorney\u2019s Fees; Sanctions for Unsupported Claims or Defenses", answer:"57.105", description:"Allows sanctions and attorney\u2019s fees when a party or attorney knew or should have known that a claim or defense lacked support in the material facts or existing law; generally includes a 21-day safe-harbor period to withdraw or correct the challenged filing."}
   ];
 
+  /* ---------------- 20 Questions content bank ---------------- */
+  var TWENTY_Q_TITLES = [
+    "Lawyer Role",
+    "Attorney + Client Relationship",
+    "Interview & Counseling",
+    "Fact Investigation",
+    "Litigation Planning",
+    "Remedies/Fees/Costs",
+    "Pleadings",
+    "Form/Judge Shopping",
+    "Subject Matter Jurisdiction",
+    "Personal Jurisdiction",
+    "Choice of Law",
+    "Alternative Dispute Resolution",
+    "Pre-Trial Conference",
+    "Discovery",
+    "Pretrial Motions",
+    "Trial",
+    "Trial Motions",
+    "Post-Trial Motions",
+    "Appeals",
+    "Judgment"
+  ];
+
+  function twentyQDesc(n){
+    return "Question " + n + " — " + TWENTY_Q_TITLES[n - 1];
+  }
+
+  var TWENTY_Q_CLUES = [
+    {tag:"DEFINITION", prompt:"What is your role in the case?", answer:"1", description:twentyQDesc(1)},
+    {tag:"DEFINITION", prompt:"Who is your client?", answer:"2", description:twentyQDesc(2)},
+    {tag:"DEFINITION", prompt:"Who will be, or was, interviewed?", answer:"3", description:twentyQDesc(3)},
+    {tag:"CONCEPT", prompt:"What did your client tell you happened?", answer:"3", description:twentyQDesc(3)},
+    {tag:"DEFINITION", prompt:"What are the facts?", answer:"4", description:twentyQDesc(4)},
+    {tag:"RULE/STATUTE", prompt:"FED. R. CIV. P. 11 — certifying factual contentions have evidentiary support", answer:"4", description:twentyQDesc(4)},
+    {tag:"DEFINITION", prompt:"What is your litigation plan?", answer:"5", description:twentyQDesc(5)},
+    {tag:"CONCEPT", prompt:"Theory of the case", answer:"5", description:twentyQDesc(5)},
+    {tag:"CONCEPT", prompt:"Theory of proof", answer:"5", description:twentyQDesc(5)},
+    {tag:"CONCEPT", prompt:"Testimonial, documentary, real, and demonstrative evidence", answer:"5", description:twentyQDesc(5)},
+    {tag:"DEFINITION", prompt:"What are the remedies sought?", answer:"6", description:twentyQDesc(6)},
+    {tag:"DEFINITION", prompt:"What are, or were, the pleadings?", answer:"7", description:twentyQDesc(7)},
+    {tag:"CONCEPT", prompt:"Complaint, answer, and reply — the three types of pleadings", answer:"7", description:twentyQDesc(7)},
+    {tag:"CONCEPT", prompt:"Parties and claims — the two components of a pleading", answer:"7", description:twentyQDesc(7)},
+    {tag:"RULE/STATUTE", prompt:"FED. R. CIV. P. 12(b)(6) — motion to dismiss for failure to state a claim", answer:"7", description:twentyQDesc(7)},
+    {tag:"DEFINITION", prompt:"Where do you want the trial held, and with whom?", answer:"8", description:twentyQDesc(8)},
+    {tag:"CONCEPT", prompt:"Vertical choice: state court or federal court", answer:"8", description:twentyQDesc(8)},
+    {tag:"CONCEPT", prompt:"Horizontal choice: which county, or which federal district or circuit", answer:"8", description:twentyQDesc(8)},
+    {tag:"CONCEPT", prompt:"Choosing a forum for the availability of favorable law", answer:"8", description:twentyQDesc(8)},
+    {tag:"DEFINITION", prompt:"What is the competence of a court to hear the claim?", answer:"9", description:twentyQDesc(9)},
+    {tag:"RULE/STATUTE", prompt:"28 U.S.C. § 1331 — federal question jurisdiction", answer:"9", description:twentyQDesc(9)},
+    {tag:"RULE/STATUTE", prompt:"28 U.S.C. § 1332 — diversity jurisdiction", answer:"9", description:twentyQDesc(9)},
+    {tag:"RULE/STATUTE", prompt:"28 U.S.C. § 1367(a) — supplemental jurisdiction", answer:"9", description:twentyQDesc(9)},
+    {tag:"RULE/STATUTE", prompt:"28 U.S.C. § 1367(b) — no supplemental jurisdiction over § 1332 claims under Rules 14, 19, 20, or 24", answer:"9", description:twentyQDesc(9)},
+    {tag:"RULE/STATUTE", prompt:"28 U.S.C. § 1367(c) — reasons a federal court would decline supplemental jurisdiction", answer:"9", description:twentyQDesc(9)},
+    {tag:"RULE/STATUTE", prompt:"28 U.S.C. § 1441 — removal from state to federal court", answer:"9", description:twentyQDesc(9)},
+    {tag:"DEFINITION", prompt:"What is the power of the court to drag people in?", answer:"10", description:twentyQDesc(10)},
+    {tag:"CONCEPT", prompt:"Domicile: residence plus intent to remain", answer:"10", description:twentyQDesc(10)},
+    {tag:"CONCEPT", prompt:"General jurisdiction over an entity: principal place of business and state of incorporation", answer:"10", description:twentyQDesc(10)},
+    {tag:"CONCEPT", prompt:"Specific jurisdiction: purposeful availment, litigation relatedness, and reasonableness", answer:"10", description:twentyQDesc(10)},
+    {tag:"DEFINITION", prompt:"Erie Question / Conflicts of Law — federal versus state", answer:"11", description:twentyQDesc(11)},
+    {tag:"DEFINITION", prompt:"Was there a negotiation or alternative dispute resolution?", answer:"12", description:twentyQDesc(12)},
+    {tag:"CONCEPT", prompt:"Mandatory mediation", answer:"12", description:twentyQDesc(12)},
+    {tag:"DEFINITION", prompt:"Were there pretrial court proceedings?", answer:"13", description:twentyQDesc(13)},
+    {tag:"RULE/STATUTE", prompt:"FED. R. CIV. P. 16 — the “power rule”", answer:"13", description:twentyQDesc(13)},
+    {tag:"DEFINITION", prompt:"What did you learn, or intend to learn, in discovery?", answer:"14", description:twentyQDesc(14)},
+    {tag:"RULE/STATUTE", prompt:"FED. R. CIV. P. 26–37", answer:"14", description:twentyQDesc(14)},
+    {tag:"RULE/STATUTE", prompt:"FED. R. CIV. P. 11(d) — Rule 11 does not apply to discovery", answer:"14", description:twentyQDesc(14)},
+    {tag:"DEFINITION", prompt:"What were the pretrial motions?", answer:"15", description:twentyQDesc(15)},
+    {tag:"DEFINITION", prompt:"What happened in the trial?", answer:"16", description:twentyQDesc(16)},
+    {tag:"DEFINITION", prompt:"What were the trial motions?", answer:"17", description:twentyQDesc(17)},
+    {tag:"RULE/STATUTE", prompt:"FED. R. CIV. P. 50(a) — judgment as a matter of law in a jury trial", answer:"17", description:twentyQDesc(17)},
+    {tag:"RULE/STATUTE", prompt:"FED. R. CIV. P. 52(c) — judgment on partial findings in a bench trial", answer:"17", description:twentyQDesc(17)},
+    {tag:"DEFINITION", prompt:"What were the post-trial motions?", answer:"18", description:twentyQDesc(18)},
+    {tag:"RULE/STATUTE", prompt:"FED. R. CIV. P. 59 — motion for a new trial", answer:"18", description:twentyQDesc(18)},
+    {tag:"RULE/STATUTE", prompt:"FED. R. CIV. P. 50(b) — renewed judgment as a matter of law after a jury trial", answer:"18", description:twentyQDesc(18)},
+    {tag:"RULE/STATUTE", prompt:"FED. R. CIV. P. 52(b) — amended or additional findings after a bench trial", answer:"18", description:twentyQDesc(18)},
+    {tag:"RULE/STATUTE", prompt:"FED. R. CIV. P. 60 — relief from a judgment or order", answer:"18", description:twentyQDesc(18)},
+    {tag:"DEFINITION", prompt:"Were there any appeals? What were they?", answer:"19", description:twentyQDesc(19)},
+    {tag:"RULE/STATUTE", prompt:"28 U.S.C. § 1291 — final orders", answer:"19", description:twentyQDesc(19)},
+    {tag:"RULE/STATUTE", prompt:"28 U.S.C. § 1292 — non-final (interlocutory) orders", answer:"19", description:twentyQDesc(19)},
+    {tag:"CONCEPT", prompt:"Direct appeal versus collateral attack", answer:"19", description:twentyQDesc(19)},
+    {tag:"DEFINITION", prompt:"What was the judgment, or judgments?", answer:"20", description:twentyQDesc(20)}
+  ];
+
+
   /* ---------------- the arcade's game registry ---------------- */
   /* Adding a new playable game later means adding one more entry here \u2014 */
   /* an id, title, blurb, its own questions bank, and its own How to Play */
@@ -831,6 +1028,28 @@
         "You get 3 attempts each visit \u2014 every attempt posts your score to the leaderboard."
       ],
       questions: QUESTIONS
+    },
+    {
+      id: "twentyQuestions",
+      title: "20 Questions",
+      icon: "\ud83d\udd22",
+      blurb: "Put the 20 Questions in order, then race the clock matching rules and concepts to the right question.",
+      status: "ready",
+      duration: 30,
+      orderGate: true,
+      orderItems: TWENTY_Q_TITLES,
+      hasReferenceList: true,
+      howtoRules: [
+        "First, put all 20 Questions in the right order (1 through 20) by tapping titles into place \u2014 tap a placed tile to send it back if you change your mind.",
+        "Once the order is correct, the 30-second drill starts. A clue \u2014 a rule, statute, or concept \u2014 will appear.",
+        "Type the <b>number</b> (1\u201320) of the Question it belongs to, then press <b>ENTER</b>.",
+        "The numbered list of all 20 Questions stays visible for reference \u2014 hide it any time for a harder run.",
+        "Wrong answers cost nothing but time, so keep trying.",
+        "You have 30 seconds. However many you get right is your score.",
+        "You only solve the ordering once per visit \u2014 after that, \"Play Again\" jumps straight into the 30-second drill.",
+        "You get 3 attempts each visit \u2014 every attempt posts your score to the leaderboard."
+      ],
+      questions: TWENTY_Q_CLUES
     },
     {
       id: "prongsOfDoom",
@@ -918,7 +1137,8 @@
     buffer: "",
     timeLeft: 60,
     timerId: null,
-    ended: false
+    ended: false,
+    orderSolvedFor: {}
   };
 
   /* ---------------- dom ---------------- */
@@ -926,6 +1146,7 @@
     home: document.getElementById('screen-home'),
     howto: document.getElementById('screen-howto'),
     intro: document.getElementById('screen-intro'),
+    order: document.getElementById('screen-order'),
     game: document.getElementById('screen-game'),
     review: document.getElementById('screen-review')
   };
@@ -957,6 +1178,13 @@
   var reviewHomeBtn = document.getElementById('reviewHomeBtn');
   var reviewSubStatus = document.getElementById('reviewSubStatus');
   var riderWrap = document.getElementById('riderWrap');
+  var orderStatus = document.getElementById('orderStatus');
+  var orderSlotsEl = document.getElementById('orderSlots');
+  var orderPoolEl = document.getElementById('orderPool');
+  var orderContinueBtn = document.getElementById('orderContinueBtn');
+  var referencePanel = document.getElementById('referencePanel');
+  var referenceListEl = document.getElementById('referenceList');
+  var referenceToggleBtn = document.getElementById('referenceToggleBtn');
   var highscoreModal = document.getElementById('highscoreModal');
   var highscoreNameInput = document.getElementById('highscoreName');
   var highscoreNameError = document.getElementById('highscoreNameError');
@@ -1204,8 +1432,133 @@
 
   readyBtn.addEventListener('click', function(){
     readyBtn.disabled = true;
+    var game = getGame(state.gameId);
+    if (game && game.orderGate && !state.orderSolvedFor[game.id]){
+      startOrderGate(game);
+    } else {
+      startAttempt();
+    }
+  });
+
+  /* ---------------- order gate (e.g. 20 Questions) ---------------- */
+  var orderState = { pool: [], slots: [], locked: [] };
+
+  function startOrderGate(game){
+    var titles = game.orderItems;
+    orderState.pool = shuffle(titles.map(function(title, idx){ return { title: title, correctIndex: idx }; }));
+    orderState.slots = new Array(titles.length).fill(null);
+    orderState.locked = new Array(titles.length).fill(false);
+    orderContinueBtn.hidden = true;
+    orderStatus.textContent = 'Tap a title below to place it in the next open slot.';
+    renderOrderSlots();
+    renderOrderPool();
+    show('order');
+  }
+
+  function renderOrderSlots(){
+    orderSlotsEl.innerHTML = '';
+    orderState.slots.forEach(function(item, idx){
+      var row = document.createElement('div');
+      row.className = 'order-slot' +
+        (orderState.locked[idx] ? ' locked' : (item ? ' filled' : ''));
+      var num = document.createElement('span');
+      num.className = 'order-slot-num';
+      num.textContent = (idx + 1) + '.';
+      var label = document.createElement('span');
+      label.className = 'order-slot-label';
+      label.textContent = item ? item.title : '';
+      row.appendChild(num);
+      row.appendChild(label);
+      if (item && !orderState.locked[idx]){
+        row.addEventListener('click', function(){ unplaceSlot(idx); });
+      }
+      orderSlotsEl.appendChild(row);
+    });
+  }
+
+  function renderOrderPool(){
+    orderPoolEl.innerHTML = '';
+    orderState.pool.forEach(function(item, poolIdx){
+      var tile = document.createElement('button');
+      tile.type = 'button';
+      tile.className = 'order-tile';
+      tile.textContent = item.title;
+      tile.addEventListener('click', function(){ placeInNextSlot(poolIdx); });
+      orderPoolEl.appendChild(tile);
+    });
+  }
+
+  function placeInNextSlot(poolIdx){
+    var nextIdx = -1;
+    for (var i=0;i<orderState.slots.length;i++){
+      if (orderState.slots[i] === null){ nextIdx = i; break; }
+    }
+    if (nextIdx === -1) return;
+    var item = orderState.pool[poolIdx];
+    orderState.slots[nextIdx] = item;
+    orderState.pool.splice(poolIdx, 1);
+    renderOrderSlots();
+    renderOrderPool();
+    var allFilled = orderState.slots.every(function(s){ return s !== null; });
+    if (allFilled) checkOrder();
+  }
+
+  function unplaceSlot(idx){
+    var item = orderState.slots[idx];
+    if (!item) return;
+    orderState.slots[idx] = null;
+    orderState.pool.push(item);
+    renderOrderSlots();
+    renderOrderPool();
+    orderStatus.textContent = 'Tap a title below to place it in the next open slot.';
+  }
+
+  function checkOrder(){
+    var allCorrect = true;
+    orderState.slots.forEach(function(item, idx){
+      if (item && item.correctIndex === idx){
+        orderState.locked[idx] = true;
+      } else {
+        allCorrect = false;
+      }
+    });
+    for (var i=0;i<orderState.slots.length;i++){
+      if (!orderState.locked[i] && orderState.slots[i]){
+        orderState.pool.push(orderState.slots[i]);
+        orderState.slots[i] = null;
+      }
+    }
+    if (allCorrect){
+      orderStatus.textContent = 'All 20 correct! Nice work.';
+      orderContinueBtn.hidden = false;
+    } else {
+      orderState.pool = shuffle(orderState.pool);
+      var correctCount = orderState.locked.filter(function(v){ return v; }).length;
+      orderStatus.textContent = correctCount + ' of 20 correct so far \u2014 the rest are back in the pool. Keep going.';
+    }
+    renderOrderSlots();
+    renderOrderPool();
+  }
+
+  orderContinueBtn.addEventListener('click', function(){
+    state.orderSolvedFor[state.gameId] = true;
     startAttempt();
   });
+
+  referenceToggleBtn.addEventListener('click', function(){
+    var nowHidden = !referenceListEl.hidden;
+    referenceListEl.hidden = nowHidden;
+    referenceToggleBtn.textContent = nowHidden ? 'Show List' : 'Hide List';
+  });
+
+  function renderReferenceList(titles){
+    referenceListEl.innerHTML = '';
+    titles.forEach(function(title, idx){
+      var li = document.createElement('li');
+      li.textContent = (idx + 1) + '. ' + title;
+      referenceListEl.appendChild(li);
+    });
+  }
 
   /* ---------------- the speed-drill engine (shared by any game that uses it) ---------------- */
   var coachTipQueue = [];
@@ -1229,8 +1582,14 @@
     state.missed = [];
     state.correctCount = 0;
     state.buffer = '';
-    state.timeLeft = 60;
+    state.timeLeft = game.duration || 60;
     state.ended = false;
+    referencePanel.hidden = !game.hasReferenceList;
+    if (game.hasReferenceList){
+      renderReferenceList(game.orderItems || []);
+      referenceListEl.hidden = false;
+      referenceToggleBtn.textContent = 'Hide List';
+    }
     show('game');
     renderLives(gameLives);
     updateScoreDisplay();
