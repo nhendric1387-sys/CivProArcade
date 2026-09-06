@@ -545,10 +545,13 @@
   #skipBtn{ font-size:11px; padding:12px 16px; }
 
   .game-body{
-    display:flex; gap:20px; align-items:flex-start; flex:1;
+    display:grid; grid-template-columns:minmax(0,1fr); gap:20px; align-items:start; flex:1;
+  }
+  .game-body.has-reference{
+    grid-template-columns:minmax(0,1fr) 300px;
   }
   .game-main{
-    flex:1; min-width:0; display:flex; flex-direction:column;
+    min-width:0; display:flex; flex-direction:column;
   }
   .reference-panel{
     position:relative; z-index:2;
@@ -693,7 +696,7 @@
     .key{ width:auto; }
     .howto-board{ padding:20px 18px 16px; }
     .game-hud{ gap:10px; }
-    .game-body{ flex-direction:column; }
+    .game-body, .game-body.has-reference{ grid-template-columns:minmax(0,1fr); }
     .reference-panel{ width:100%; }
 
     .order-body{ margin-top:16px; }
@@ -1607,6 +1610,7 @@
     state.timeLeft = game.duration || 60;
     state.ended = false;
     referencePanel.hidden = !game.hasReferenceList;
+    document.querySelector('.game-body').classList.toggle('has-reference', !!game.hasReferenceList);
     if (game.hasReferenceList){
       renderReferenceList(game.orderItems || []);
       referenceListEl.hidden = false;
