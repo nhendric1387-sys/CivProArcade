@@ -620,6 +620,8 @@
   .order-slot.filled{ border-style:solid; border-color:var(--lantern); cursor:pointer; }
   .order-slot.filled:hover{ filter:brightness(1.1); }
   .order-slot.locked{ border-style:solid; border-color:var(--success); background:rgba(110,164,90,.15); cursor:default; }
+  .order-slot.active{ border-style:solid; border-color:var(--lantern); background:rgba(242,182,50,.10); }
+  .order-slot.locked.revealed{ border-color:var(--lantern-dim); background:rgba(242,182,50,.08); }
   .order-slot-num{ color:var(--dust); flex-shrink:0; width:26px; }
   .order-slot-label{ color:var(--paper); min-width:0; overflow-wrap:break-word; }
   .order-pool{
@@ -636,6 +638,59 @@
   .order-tile:hover{ border-color:var(--lantern); }
   .order-tile:active{ transform:translate(2px,2px); }
   #orderContinueBtn{ margin-top:22px; }
+
+  .prong-order-status{
+    text-align:center; font-size:16px; color:#6b6152; margin:0 0 12px;
+  }
+  .prong-order-status.close{ color:var(--lantern-dim); }
+  .prong-order-status.wrong{ color:var(--brick-red); }
+  .prong-slots{
+    display:flex; flex-direction:column; gap:8px;
+    width:100%; max-width:640px; margin:0 auto;
+  }
+  .prong-slot{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 14px;
+    border:2px dashed var(--slate-light);
+    font-family:'VT323',monospace; font-size:18px;
+    min-height:42px;
+    min-width:0;
+  }
+  .prong-slot.active{ border-style:solid; border-color:var(--lantern); background:rgba(242,182,50,.10); }
+  .prong-slot.locked{ border-style:solid; border-color:var(--success); background:rgba(110,164,90,.15); cursor:default; }
+  .prong-slot-num{ color:var(--dust); flex-shrink:0; width:26px; }
+  .prong-slot-label{ color:var(--paper); min-width:0; overflow-wrap:break-word; }
+
+  .type-answer-area{
+    position:relative; z-index:2;
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    flex:1; width:100%;
+  }
+  .type-input{
+    font-family:'VT323',monospace;
+    font-size:22px;
+    width:100%; max-width:420px;
+    padding:12px 16px;
+    background:var(--coal-black);
+    border:3px solid var(--slate);
+    color:var(--paper);
+    text-align:center;
+  }
+  .type-input:focus{ outline:none; border-color:var(--lantern); }
+  .type-input.correct{ border-color:var(--success); color:var(--success); animation:pop .2s; }
+  .type-input.wrong{ border-color:var(--brick-red); color:var(--brick-red); animation:shake .3s; }
+  .type-input::placeholder{ color:var(--dust); }
+  .type-feedback{
+    font-family:'VT323',monospace; font-size:16px; min-height:20px;
+    color:var(--dust); text-align:center; max-width:460px;
+  }
+  .type-feedback.close{ color:var(--lantern-dim); }
+  .type-feedback.wrong{ color:var(--brick-red); }
+  .type-feedback.correct{ color:var(--success); }
+  .prong-type-row{
+    display:flex; gap:10px; width:100%; max-width:520px; margin:6px auto 0; flex-wrap:wrap; justify-content:center;
+  }
+  .prong-type-row .type-input{ flex:1; min-width:200px; margin:0; }
 
   /* ================= REVIEW ("Dean's Fellow Session") ================= */
   #screen-review{
@@ -693,6 +748,9 @@
     .prompt-eyebrow{ font-size:16px; padding:4px 9px; }
     .digit-readout{ min-width:0; width:100%; max-width:220px; padding:12px 16px; font-size:26px; }
     .keypad{ grid-template-columns:repeat(3, minmax(0,1fr)); width:100%; max-width:260px; }
+    .type-input{ max-width:100%; font-size:19px; padding:10px 12px; }
+    .prong-type-row{ flex-direction:column; align-items:stretch; }
+    .prong-type-row .type-input{ min-width:0; }
     .key{ width:auto; }
     .howto-board{ padding:20px 18px 16px; }
     .game-hud{ gap:10px; }
@@ -766,12 +824,18 @@
     <div class="howto-board order-intro">
       <h2 class="howto-title">DEAN'S FELLOW SESSION</h2>
       <p class="howto-sub">Put the 20 Questions in order</p>
-      <p class="order-status" id="orderStatus">Tap a title below to place it in the next open slot.</p>
+      <p class="order-status" id="orderStatus">Type Question 1, in order, then press Enter.</p>
     </div>
 
     <div class="order-body">
       <div class="order-slots" id="orderSlots"></div>
-      <div class="order-pool" id="orderPool"></div>
+      <div class="prong-type-row">
+        <input type="text" class="type-input" id="orderTypeInput" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="80" placeholder="Type this Question's title…">
+        <button class="btn" type="button" id="orderSubmitBtn">Submit (Enter)</button>
+      </div>
+      <div class="answer-actions">
+        <button class="btn secondary" type="button" id="orderRevealBtn">Reveal &amp; Continue (Esc)</button>
+      </div>
     </div>
 
     <button class="btn" id="orderContinueBtn" hidden>Start the Drill</button>
@@ -807,7 +871,7 @@
           <p class="prompt-text" id="promptText">—</p>
         </div>
 
-        <div class="answer-area">
+        <div class="answer-area" id="keypadArea">
           <div class="digit-readout" id="digitReadout">—</div>
           <div class="keypad" id="keypad">
             <button class="key" type="button" data-key="1">1</button>
@@ -828,11 +892,33 @@
             <button class="btn secondary" id="skipBtn">Skip (Space)</button>
           </div>
         </div>
+
+        <div class="type-answer-area" id="typeAnswerArea" hidden>
+          <input type="text" class="type-input" id="typeInput" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="80" placeholder="Type a word from the case name…">
+          <p class="type-feedback" id="typeFeedback">&nbsp;</p>
+          <div class="answer-actions">
+            <button class="btn" type="button" id="typeSubmitBtn">Submit (Enter)</button>
+            <button class="btn secondary" type="button" id="typeSkipBtn">Skip (Esc)</button>
+          </div>
+        </div>
+
+        <div class="prong-order-area" id="prongOrderArea" hidden>
+          <p class="prong-order-status" id="prongOrderStatus">Type each prong in order.</p>
+          <div class="prong-slots" id="prongSlots"></div>
+          <div class="prong-type-row">
+            <input type="text" class="type-input" id="prongTypeInput" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="120" placeholder="Type this prong…">
+            <button class="btn" type="button" id="prongSubmitBtn">Submit (Enter)</button>
+          </div>
+          <div class="answer-actions">
+            <button class="btn secondary" type="button" id="prongSkipBtn">Skip (Esc)</button>
+            <button class="btn secondary" type="button" id="evaBtn">Text Eva (3)</button>
+          </div>
+        </div>
       </div>
 
       <div class="reference-panel" id="referencePanel" hidden>
         <div class="reference-panel-head">
-          <span>20 Questions</span>
+          <span id="referencePanelTitle">20 Questions</span>
           <button type="button" class="reference-toggle" id="referenceToggleBtn">Hide List</button>
         </div>
         <ol class="reference-list" id="referenceList"></ol>
@@ -960,7 +1046,7 @@
     "Litigation Planning",
     "Remedies/Fees/Costs",
     "Pleadings",
-    "Form/Judge Shopping",
+    "Form Shopping/Judge Shopping",
     "Subject Matter Jurisdiction",
     "Personal Jurisdiction",
     "Choice of Law",
@@ -978,6 +1064,30 @@
   function twentyQDesc(n){
     return "Question " + n + " — " + TWENTY_Q_TITLES[n - 1];
   }
+
+  var TWENTY_Q_ACRONYMS = [
+    ["LR"],           // 1. Lawyer Role
+    ["ACR"],          // 2. Attorney + Client Relationship
+    ["IC"],           // 3. Interview & Counseling
+    ["FI"],           // 4. Fact Investigation
+    ["LP"],           // 5. Litigation Planning
+    ["RFC"],          // 6. Remedies/Fees/Costs
+    [],               // 7. Pleadings
+    ["FS/JS"],        // 8. Form Shopping/Judge Shopping
+    ["SMJ"],          // 9. Subject Matter Jurisdiction
+    ["PJ"],           // 10. Personal Jurisdiction
+    ["COL"],          // 11. Choice of Law
+    ["ADR"],          // 12. Alternative Dispute Resolution
+    ["PTC"],          // 13. Pre-Trial Conference
+    [],               // 14. Discovery
+    ["PM"],           // 15. Pretrial Motions
+    [],               // 16. Trial
+    ["TM"],           // 17. Trial Motions
+    ["PTM"],          // 18. Post-Trial Motions
+    [],               // 19. Appeals
+    []                // 20. Judgment
+  ];
+
 
   var TWENTY_Q_CLUES = [
     {tag:"DEFINITION", prompt:"What is your role in the case?", answer:"1", description:twentyQDesc(1)},
@@ -1036,6 +1146,193 @@
   ];
 
 
+  var PRONG_TESTS = [
+    {
+      num: 1,
+      title: 'Compensatory Damages — 4-Prong Test',
+      trigger: 'A plaintiff\'s property was destroyed or damaged, and the court must calculate the dollar amount that makes the plaintiff whole.',
+      shortTitle: 'Compensatory Damages',
+      aliases: ['CD'],
+      prongs: [
+        { full: 'Fair market value', short: 'Fair market value', aliases: [] },
+        { full: 'Interim use value', short: 'Interim use value', aliases: [] },
+        { full: 'Replacement cost', short: 'Replacement cost', aliases: [] },
+        { full: 'Mitigation', short: 'Mitigation', aliases: [] }
+      ],
+      caseName: '— (common-law measure)',
+      ruleStatute: 'General damages remedy (tort/contract)'
+    },
+    {
+      num: 2,
+      title: 'Punitive Damages — “Gore Guideposts”',
+      trigger: 'A jury awarded punitive damages far larger than the compensatory award, and the defendant argues the punitive award is unconstitutionally excessive.',
+      shortTitle: 'Gore',
+      aliases: ['BMW v Gore', 'BMW', 'Gore Guideposts'],
+      prongs: [
+        { full: 'Reprehensibility', short: 'Reprehensibility', aliases: [] },
+        { full: 'Proportionality (ratio PD:CD — 9:1 cap per State Farm v. Campbell)', short: 'Proportionality', aliases: [] },
+        { full: 'Comparability (to civil/criminal penalties)', short: 'Comparability', aliases: [] }
+      ],
+      caseName: 'BMW v. Gore',
+      ruleStatute: '14th Amdt Due Process (excessiveness review)'
+    },
+    {
+      num: 3,
+      title: 'Article III Standing (Injunctions & DJ)',
+      trigger: 'Before reaching the merits, the court must decide whether this particular plaintiff even has the right to be in federal court.',
+      shortTitle: 'Article III Standing',
+      aliases: ['Art III', 'Article 3', 'Article III', 'Standing', 'Art 3'],
+      prongs: [
+        { full: 'Injury in fact', short: 'Injury in fact', aliases: ['Injury'] },
+        { full: 'Traceability', short: 'Traceability', aliases: [] },
+        { full: 'Redressability', short: 'Redressability', aliases: [] }
+      ],
+      caseName: 'City of Los Angeles v. Lyons',
+      ruleStatute: 'Art. III § 2 — gates both Injunctions & DJ'
+    },
+    {
+      num: 4,
+      title: 'Winter Injunction Test (TRO)',
+      trigger: 'Plaintiff wants the court to stop the defendant\'s conduct right now, before trial, because waiting for a final judgment would cause irreparable harm.',
+      shortTitle: 'Winter',
+      aliases: ['Winters', 'Winter Test'],
+      prongs: [
+        { full: 'No adequate remedy at law', short: 'No adequate remedy at law', aliases: ['No adequate remedy'] },
+        { full: 'Likelihood of success on the merits', short: 'Likelihood of success on the merits', aliases: ['Likelihood of success', 'Success on the merits'] },
+        { full: 'Likelihood of irreparable injury', short: 'Likelihood of irreparable injury', aliases: ['Irreparable harm', 'Irreparable injury'] },
+        { full: 'Balance of equities', short: 'Balance of equities', aliases: ['Balance of equity', 'Harm v. hardship'] },
+        { full: 'Public interest', short: 'Public interest', aliases: [] }
+      ],
+      caseName: 'Winter v. NRDC (reaffirmed in Starbucks v. McKinney)',
+      ruleStatute: 'FRCP 65 (TRO / Preliminary / Permanent Injunctions)'
+    },
+    {
+      num: 5,
+      title: 'Declaratory Judgment Test',
+      trigger: 'The parties disagree about their legal rights and obligations, but no one has been sued for damages yet — a party just wants the court to say who\'s right.',
+      shortTitle: 'DJ',
+      aliases: ['Dec Actions', 'Declaratory Judgement', 'Declaratory Judgment'],
+      prongs: [
+        { full: 'Actual case or controversy (Art. III)', short: 'Actual case or controversy', aliases: ['Case or controversy', 'Actual controversy'] },
+        { full: 'Rights & relations (legal consequences/obligations)', short: 'Rights and relations', aliases: ['Rights & obligations', 'Declaration of rights'] },
+        { full: 'Interested parties (stake/injury)', short: 'Interested parties', aliases: [] }
+      ],
+      caseName: '— (statutory test; applied in Prince / Anderson)',
+      ruleStatute: 'FRCP 57; 28 U.S.C. §§ 2201–2202'
+    },
+    {
+      num: 6,
+      title: 'Mathews v. Eldridge Balancing Test',
+      trigger: 'The government wants to terminate someone\'s benefits or take adverse action against them, and the question is exactly how much process is due before it happens.',
+      shortTitle: 'Mathews',
+      aliases: ['Matthews', 'Mathews v Eldridge', 'Mathews Test'],
+      prongs: [
+        { full: 'Private interest affected', short: 'Private interest affected', aliases: ['Private interest'] },
+        { full: 'Risk of erroneous deprivation', short: 'Risk of erroneous deprivation', aliases: [] },
+        { full: 'Probable value of safeguards', short: 'Probable value of safeguards', aliases: ['Value of safeguards'] },
+        { full: 'Interest of the party seeking the action', short: 'Interest of the party seeking the action', aliases: ['Party interest'] },
+        { full: 'Government / public interest', short: 'Government interest', aliases: ['Government interest', 'Gov/Pub interest'] }
+      ],
+      caseName: 'Mathews v. Eldridge',
+      ruleStatute: '5th/14th Amdt Due Process — applied to FRCP 64 seizures'
+    },
+    {
+      num: 7,
+      title: 'Rule 65(b) Ex Parte TRO Standard',
+      trigger: 'Plaintiff wants a restraining order today, without notifying the defendant first, because advance warning would let the defendant destroy evidence or flee with assets.',
+      shortTitle: '65(b)',
+      aliases: ['TRO', '65b'],
+      prongs: [
+        { full: 'Affidavit/verified complaint showing immediate & irreparable injury before the adverse party can be heard', short: 'Affidavit showing immediate irreparable injury', aliases: ['Affidavit'] },
+        { full: 'Attorney certification of notice efforts & why notice should be excused', short: 'Attorney certification of notice efforts', aliases: ['Certification'] }
+      ],
+      caseName: '— (rule-based; conceptually paired with Fuentes)',
+      ruleStatute: 'FRCP 65(b)'
+    },
+    {
+      num: 8,
+      title: 'Lodestar Calculation',
+      trigger: 'The court has already decided a prevailing party is entitled to attorney\'s fees, and now must calculate the dollar amount.',
+      shortTitle: 'Lodestar',
+      aliases: ['Lodestar Calculation', 'Loadstar'],
+      prongs: [
+        { full: 'Reasonable hours expended', short: 'Reasonable hours expended', aliases: ['Reasonable hours', 'Hours'] },
+        { full: '× Reasonable hourly rate', short: 'Reasonable hourly rate', aliases: ['Reasonable rate', 'Rate'] }
+      ],
+      caseName: '— (calculation method)',
+      ruleStatute: '42 U.S.C. § 1988 (fee amount, after prevailing-party is established)'
+    }
+  ];
+
+  function prongDescription(t){
+    var parts = t.prongs.map(function(p, i){ return (i+1) + ') ' + p.full; });
+    return t.title + ' — Prongs: ' + parts.join('; ') + '. Case: ' + t.caseName + '. ' + t.ruleStatute + '.';
+  }
+
+  var PRONG_TEST_TITLES = PRONG_TESTS.map(function(t){ return t.title; });
+
+  var PRONG_ORDER_QUESTIONS = PRONG_TESTS.map(function(t){
+    return { tag: 'MULTI-PRONG TEST', prompt: t.title, answer: '#' + t.num, description: prongDescription(t), prongs: t.prongs };
+  });
+
+  var CASE_BRIEF_QUESTIONS = [
+    { tag: 'YSC CASEBOOK', prompt: 'Grocery store slip & fall; §1441/§1332 removal — AIC "more likely than not" >$75k test', answer: 'Troupe', aliases: ['Wholesale', 'Grocers'], caseName: 'Troupe v. C & S Wholesale Grocers, Inc.', description: 'Troupe v. C & S Wholesale Grocers, Inc. — Grocery store slip & fall; §1441/§1332 removal — AIC "more likely than not" >$75k test' },
+    { tag: 'SUPPLEMENT', prompt: 'Repainted car, $4k comp./$2M punitive (500:1); Set 3 Guideposts for "grossly excessive" Punitive Damages', answer: 'BMW', aliases: ['Gore'], caseName: 'BMW v. Gore', description: 'BMW v. Gore — Repainted car, $4k comp./$2M punitive (500:1); Set 3 Guideposts for "grossly excessive" Punitive Damages' },
+    { tag: 'SUPPLEMENT', prompt: 'Buffalo Creek dam collapse, 125 dead; CD 4-prong mitigation prong (in water vs. watching)', answer: 'Prince', aliases: ['Pittston'], caseName: 'Prince v. Pittston', description: 'Prince v. Pittston — Buffalo Creek dam collapse, 125 dead; CD 4-prong mitigation prong (in water vs. watching)' },
+    { tag: 'FOOTNOTE CASE', prompt: "$1M comp./$145M punitive. Set 9:1 ratio for Gore's proportionality, 14th Amdt DPC", answer: 'Farm', aliases: ['Campbell'], caseName: 'State Farm v. Campbell', description: "State Farm v. Campbell — $1M comp./$145M punitive. Set 9:1 ratio for Gore's proportionality, 14th Amdt DPC" },
+    { tag: 'FOOTNOTE CASE', prompt: 'Copyright infringement; jury (not judge) sets statutory damages w/in range, 7th Amdt', answer: 'Feltner', aliases: ['Columbia', 'Pictures'], caseName: 'Feltner v. Columbia Pictures', description: 'Feltner v. Columbia Pictures — Copyright infringement; jury (not judge) sets statutory damages w/in range, 7th Amdt' },
+    { tag: 'FOOTNOTE CASE', prompt: '$1 nominal damages; still "prevailing party" for §1988 fees', answer: 'Farrar', aliases: ['Hobby'], caseName: 'Farrar v. Hobby', description: 'Farrar v. Hobby — $1 nominal damages; still "prevailing party" for §1988 fees' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Ferry-accident; race-based life-expectancy damages tables unconstitutional', answer: 'McMillan', aliases: ['New', 'York'], caseName: 'McMillan v. City of New York', description: 'McMillan v. City of New York — Ferry-accident; race-based life-expectancy damages tables unconstitutional' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Racial-gerrymander redistricting map', answer: 'Grace', aliases: ['Miami'], caseName: 'Grace v. City of Miami', description: 'Grace v. City of Miami — Racial-gerrymander redistricting map' },
+    { tag: 'FOOTNOTE CASE', prompt: '"Old Smokey" incinerator ash contamination; Fla. Stat. §768.28(6) case-study file', answer: 'Yvette', aliases: ['Styles', 'Miami'], caseName: 'Yvette Styles v. City of Miami', description: 'Yvette Styles v. City of Miami — "Old Smokey" incinerator ash contamination; Fla. Stat. §768.28(6) case-study file' },
+    { tag: 'YSC CASEBOOK', prompt: 'Navy sonar/whales; 5-prong PI test — no adeq. remedy, irreparable harm, likely success, balance, public interest, R.65', answer: 'Winter', aliases: ['Natural', 'Resources', 'Defense', 'Council'], caseName: 'Winter v. Natural Resources Defense Council, Inc.', description: 'Winter v. Natural Resources Defense Council, Inc. — Navy sonar/whales; 5-prong PI test — no adeq. remedy, irreparable harm, likely success, balance, public interest, R.65' },
+    { tag: 'SUPPLEMENT', prompt: 'Police chokehold; no standing — can\'t show real/imminent threat of REPEAT injury (traceability fails)', answer: 'Los', aliases: ['Angeles', 'Lyons'], caseName: 'City of Los Angeles v. Lyons', description: 'City of Los Angeles v. Lyons — Police chokehold; no standing — can\'t show real/imminent threat of REPEAT injury (traceability fails)' },
+    { tag: 'SUPPLEMENT', prompt: 'Fired union organizers; NLRB §10(j) petition still gets traditional Winter 4-factor test', answer: 'Starbucks', aliases: ['McKinney'], caseName: 'Starbucks v. McKinney', description: 'Starbucks v. McKinney — Fired union organizers; NLRB §10(j) petition still gets traditional Winter 4-factor test' },
+    { tag: 'SUPPLEMENT', prompt: '"Alligator Alcatraz" detention facility; Winter/Lyons injunction framework applied', answer: 'Friends', aliases: ['Everglades', 'Homeland'], caseName: 'Friends of the Everglades v. Sec\'y of US Dep\'t of Homeland Sec.', description: 'Friends of the Everglades v. Sec\'y of US Dep\'t of Homeland Sec. — "Alligator Alcatraz" detention facility; Winter/Lyons injunction framework applied' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Nursing-home FNHRA rights; "rights-creating language" test for statute to be §1983-enforceable', answer: 'Health', aliases: ['Hospital', 'Talevski'], caseName: 'Health & Hospital Corp. v. Talevski', description: 'Health & Hospital Corp. v. Talevski — Nursing-home FNHRA rights; "rights-creating language" test for statute to be §1983-enforceable' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Birthright citizenship; nationwide/universal injunctions barred — R.65(d), "complete relief" to parties only', answer: 'Trump', aliases: ['CASA'], caseName: 'Trump v. CASA', description: 'Trump v. CASA — Birthright citizenship; nationwide/universal injunctions barred — R.65(d), "complete relief" to parties only' },
+    { tag: 'FOOTNOTE CASE', prompt: 'PI GRANTED on Miami map — Winter applied: race predominant factor, no VRA justification', answer: 'Grace', aliases: ['Miami'], caseName: 'Grace v. City of Miami', description: 'Grace v. City of Miami — PI GRANTED on Miami map — Winter applied: race predominant factor, no VRA justification' },
+    { tag: 'FOOTNOTE CASE', prompt: 'App Store injunction; civil contempt for violating order\'s "spirit" — R.65(d) reasonable-detail scope', answer: 'Apple', aliases: ['Epic', 'Games'], caseName: 'Apple v. Epic Games', description: 'Apple v. Epic Games — App Store injunction; civil contempt for violating order\'s "spirit" — R.65(d) reasonable-detail scope' },
+    { tag: 'YSC CASEBOOK', prompt: 'Replevin of stove/furniture w/o hearing; 3-factor notice test — timing, form, content, 5th/14th Amdt', answer: 'Fuentes', aliases: ['Shevin'], caseName: 'Fuentes v. Shevin', description: 'Fuentes v. Shevin — Replevin of stove/furniture w/o hearing; 3-factor notice test — timing, form, content, 5th/14th Amdt' },
+    { tag: 'SUPPLEMENT', prompt: 'Fuel producers challenge CA emissions waiver; Art. III standing test (injury/traceability/redressability) (Jackson, J., dissenting)', answer: 'Diamond', aliases: ['Alternative', 'Energy', 'Env\'t', 'Prot', 'Agency'], caseName: 'Diamond Alternative Energy v. Env\'t Prot. Agency', description: 'Diamond Alternative Energy v. Env\'t Prot. Agency — Fuel producers challenge CA emissions waiver; Art. III standing test (injury/traceability/redressability) (Jackson, J., dissenting)' },
+    { tag: 'SUPPLEMENT', prompt: 'Mifepristone access; anti-abortion doctors lack Art. III standing to sue', answer: 'FDA', aliases: ['Alliance', 'Hippocratic', 'Medicine'], caseName: 'FDA v. Alliance for Hippocratic Medicine', description: 'FDA v. Alliance for Hippocratic Medicine — Mifepristone access; anti-abortion doctors lack Art. III standing to sue' },
+    { tag: 'SUPPLEMENT', prompt: 'Seized cars, civil forfeiture; PROMPT POST-seizure hearing suffices — no separate pre-seizure hearing req\'d', answer: 'Culley', aliases: ['Marshall'], caseName: 'Culley v. Marshall', description: 'Culley v. Marshall — Seized cars, civil forfeiture; PROMPT POST-seizure hearing suffices — no separate pre-seizure hearing req\'d' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Real-property drug forfeiture; pre-seizure notice & hearing req\'d even for admitted illegal conduct, 5th Amdt', answer: 'Good', aliases: [], caseName: 'United States v. Good', description: 'United States v. Good — Real-property drug forfeiture; pre-seizure notice & hearing req\'d even for admitted illegal conduct, 5th Amdt' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Ex parte prejudgment attachment of home in assault suit; no hearing/bond = too high error risk, 14th Amdt', answer: 'Connecticut', aliases: ['Doehr'], caseName: 'Connecticut v. Doehr', description: 'Connecticut v. Doehr — Ex parte prejudgment attachment of home in assault suit; no hearing/bond = too high error risk, 14th Amdt' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Disability benefits terminated pre-hearing; 5-prong balancing test (private interest/error risk/safeguard value/party interest/gov\'t interest)', answer: 'Mathews', aliases: ['Eldridge'], caseName: 'Mathews v. Eldridge', description: 'Mathews v. Eldridge — Disability benefits terminated pre-hearing; 5-prong balancing test (private interest/error risk/safeguard value/party interest/gov\'t interest)' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Ex parte bank-account garnishment; unconstitutional w/o prior notice/hearing, duration not determinative', answer: 'North', aliases: ['Georgia', 'Finishing', 'Di-Chem'], caseName: 'North Georgia Finishing Inc. v. Di-Chem', description: 'North Georgia Finishing Inc. v. Di-Chem — Ex parte bank-account garnishment; unconstitutional w/o prior notice/hearing, duration not determinative' },
+    { tag: 'FOOTNOTE CASE', prompt: '"Trolley Garage" case study; municipal due-process/provisional-remedy fact pattern', answer: 'Ward', aliases: ['Miami'], caseName: 'Ward v. City of Miami', description: 'Ward v. City of Miami — "Trolley Garage" case study; municipal due-process/provisional-remedy fact pattern' },
+    { tag: 'YSC CASEBOOK', prompt: 'Disabled-children class settlement w/ fee waiver in §1983 cases; §1988 fees are permitted, not mandatory on settlement', answer: 'Evans', aliases: ['Jeff'], caseName: 'Evans v. Jeff D.', description: 'Evans v. Jeff D. — Disabled-children class settlement w/ fee waiver in §1983 cases; §1988 fees are permitted, not mandatory on settlement' },
+    { tag: 'YSC CASEBOOK', prompt: 'Sets the "prevailing party" rule. Care home sued over fire-safety rule; state repealed it before judgment — no court win, no prevail. party (catalyst theory rejected)', answer: 'Buckhannon', aliases: ['West', 'Virginia', 'Health', 'Human', 'Resources'], caseName: 'Buckhannon v. West Virginia Dept. of Health and Human Resources', description: 'Buckhannon v. West Virginia Dept. of Health and Human Resources — Sets the "prevailing party" rule. Care home sued over fire-safety rule; state repealed it before judgment — no court win, no prevail. party (catalyst theory rejected)' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Virginia state law that suspended people\'s driver\'s licenses. Prelim Ing later mooted by statute\'s repeal; Prelim Inj alone ≠ "prevailing party" under §1988(b) — needs ENDURING relief', answer: 'Lackey', aliases: ['Stinnie'], caseName: 'Lackey v. Stinnie', description: 'Lackey v. Stinnie — Virginia state law that suspended people\'s driver\'s licenses. Prelim Ing later mooted by statute\'s repeal; Prelim Inj alone ≠ "prevailing party" under §1988(b) — needs ENDURING relief' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Bad-faith fraudulent asset transfers; $1M fee award upheld — courts\' INHERENT power to sanction', answer: 'Chambers', aliases: ['NASCO'], caseName: 'Chambers v. NASCO', description: 'Chambers v. NASCO — Bad-faith fraudulent asset transfers; $1M fee award upheld — courts\' INHERENT power to sanction' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Contingency-fee cap doesn\'t limit §1988 lodestar fee award; SCOTUS can award fees to eligible parties unless award is unjust', answer: 'Blanchard', aliases: ['Bergeron'], caseName: 'Blanchard v. Bergeron', description: 'Blanchard v. Bergeron — Contingency-fee cap doesn\'t limit §1988 lodestar fee award; SCOTUS can award fees to eligible parties unless award is unjust' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Three police officers killed Chesny while responding to a domestic disturbance;§1983; P rejected R.68 offer, P recovered less; post-offer COSTS shift to plaintiff', answer: 'Marek', aliases: ['Chesney'], caseName: 'Marek v. Chesney', description: 'Marek v. Chesney — Three police officers killed Chesny while responding to a domestic disturbance;§1983; P rejected R.68 offer, P recovered less; post-offer COSTS shift to plaintiff' },
+    { tag: 'FOOTNOTE CASE', prompt: "Title VII; ASYMMETRIC fee std — prevailing D recovers only if P's claim frivolous/groundless", answer: 'Christianburg', aliases: ['Equal', 'Employment', 'Opportunity', 'Commission', 'Christiansburg'], caseName: 'Christianburg v. Equal Employment Opportunity Commission', description: "Christianburg v. Equal Employment Opportunity Commission — Title VII; ASYMMETRIC fee std — prevailing D recovers only if P's claim frivolous/groundless" },
+    { tag: 'FOOTNOTE CASE', prompt: 'Trans-Alaska pipeline delay suit; NO common-law "private attorney general" fee-shifting doctrine', answer: 'Alyeska', aliases: ['Pipeline', 'Wilderness', 'Society'], caseName: 'Alyeska Pipeline v. Wilderness Society', description: 'Alyeska Pipeline v. Wilderness Society — Trans-Alaska pipeline delay suit; NO common-law "private attorney general" fee-shifting doctrine' },
+    { tag: 'FOOTNOTE CASE', prompt: 'School segregation; NAACP LDF-financed — illustrates why fee-shifting statutes (§1988) matter', answer: 'Brown', aliases: ['Education'], caseName: 'Brown v. Board of Education', description: 'Brown v. Board of Education — School segregation; NAACP LDF-financed — illustrates why fee-shifting statutes (§1988) matter' },
+    { tag: 'YSC CASEBOOK', prompt: '"At-will" Employee fired for grand-jury subpoena cooperation; 12(b)(6) dismissal, §1985(2) at-will firing injures "person/property" for §1985(2)', answer: 'Haddle', aliases: ['Garrison'], caseName: 'Haddle v. Garrison', description: 'Haddle v. Garrison — "At-will" Employee fired for grand-jury subpoena cooperation; 12(b)(6) dismissal, §1985(2) at-will firing injures "person/property" for §1985(2)' },
+    { tag: 'YSC CASEBOOK', prompt: 'Post-9/11 Muslim detainee, harsh-confinement claim; Establish 2-step — disregard conclusory, then assess plausibility', answer: 'Ashcroft', aliases: ['Iqbal'], caseName: 'Ashcroft v. Iqbal', description: 'Ashcroft v. Iqbal — Post-9/11 Muslim detainee, harsh-confinement claim; Establish 2-step — disregard conclusory, then assess plausibility' },
+    { tag: 'YSC CASEBOOK', prompt: 'Black female applicant, race/sex hiring claim; dismissed — "naked allegations," formulaic recitation under Iqbal', answer: 'McCleary-Evans', aliases: ['Maryland', 'Transportation'], caseName: 'McCleary-Evans v. Maryland Department of Transportation', description: 'McCleary-Evans v. Maryland Department of Transportation — Black female applicant, race/sex hiring claim; dismissed — "naked allegations," formulaic recitation under Iqbal' },
+    { tag: 'YSC CASEBOOK', prompt: 'Insurer\'s fraud counterclaim; R.9(b) particularity — must state "time, place, & nature" of misrep.', answer: 'Stradford', aliases: ['Zurich'], caseName: 'Stradford v. Zurich', description: 'Stradford v. Zurich — Insurer\'s fraud counterclaim; R.9(b) particularity — must state "time, place, & nature" of misrep.' },
+    { tag: 'SUPPLEMENT', prompt: 'Fired for reporting official\'s crime; R.8 needs NO legal-theory label — distinguishes Twombly/Iqbal (facts, not labels)', answer: 'Johnson', aliases: ['Shelby'], caseName: 'Johnson v. City of Shelby', description: 'Johnson v. City of Shelby — Fired for reporting official\'s crime; R.8 needs NO legal-theory label — distinguishes Twombly/Iqbal (facts, not labels)' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Telecom antitrust conspiracy, Sherman Act treble damages; PLAUSIBILITY standard replaces Conley (No set of facts)', answer: 'Bell', aliases: ['Atlantic', 'Twombly'], caseName: 'Bell Atlantic Corp. v. Twombly', description: 'Bell Atlantic Corp. v. Twombly — Telecom antitrust conspiracy, Sherman Act treble damages; PLAUSIBILITY standard replaces Conley (No set of facts)' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Union race discrimination; old "no set of facts" notice-pleading standard — replaced by Twombly', answer: 'Conley', aliases: ['Gibson'], caseName: 'Conley v. Gibson', description: 'Conley v. Gibson — Union race discrimination; old "no set of facts" notice-pleading standard — replaced by Twombly' },
+    { tag: 'FOOTNOTE CASE', prompt: '"Old Smokey"; 2d Am. Complaint survives MTD — satisfies Fla. Stat. §768.28(6) notice purpose', answer: 'Yvette', aliases: ['Styles', 'Miami'], caseName: 'Yvette Styles et al. v. City of Miami', description: 'Yvette Styles et al. v. City of Miami — "Old Smokey"; 2d Am. Complaint survives MTD — satisfies Fla. Stat. §768.28(6) notice purpose' },
+    { tag: 'FOOTNOTE CASE', prompt: 'ERISA fund underperformance; pleading standard for "meaningful benchmark" comparator', answer: 'Anderson', aliases: ['Intel'], caseName: 'Anderson v. Intel Corp', description: 'Anderson v. Intel Corp — ERISA fund underperformance; pleading standard for "meaningful benchmark" comparator' },
+    { tag: 'YSC CASEBOOK', prompt: '§1983; Prisoner forced to work w. injury; PLRA exhaustion is an AFFIRMATIVE DEFENSE 8(c), not pled by plaintiff', answer: 'Jones', aliases: ['Bock'], caseName: 'Jones v. Bock', description: 'Jones v. Bock — §1983; Prisoner forced to work w. injury; PLRA exhaustion is an AFFIRMATIVE DEFENSE 8(c), not pled by plaintiff' },
+    { tag: 'SUPPLEMENT', prompt: '§1983; Unemployment-benefit delay suit during COVID; NO exhaustion req. b/c state rule can\'t functionally immunize officials', answer: 'Williams', aliases: ['Reed'], caseName: 'Williams v. Reed', description: 'Williams v. Reed — §1983; Unemployment-benefit delay suit during COVID; NO exhaustion req. b/c state rule can\'t functionally immunize officials' },
+    { tag: 'SUPPLEMENT', prompt: '§1983; TX Medicaid consent decree; 11th Amdt (sovereign Immunity) doesn\'t bar enforcement — Ex parte Young prospective relief', answer: 'Frew', aliases: ['Hawkins'], caseName: 'Frew v. Hawkins', description: 'Frew v. Hawkins — §1983; TX Medicaid consent decree; 11th Amdt (sovereign Immunity) doesn\'t bar enforcement — Ex parte Young prospective relief' },
+    { tag: 'SUPPLEMENT', prompt: '§1983; 8th and 14th amend; Prison hitching post 7 hrs; qualified-immunity 2-part test (violation + clearly established) — DENIED, fair warning existed', answer: 'Hope', aliases: ['Pelzer'], caseName: 'Hope v. Pelzer', description: 'Hope v. Pelzer — §1983; 8th and 14th amend; Prison hitching post 7 hrs; qualified-immunity 2-part test (violation + clearly established) — DENIED, fair warning existed' },
+    { tag: 'YSC CASEBOOK', prompt: '"Claudene" doll copyright suit; R.11 sanctions limited to SIGNED PAPERS, not oral/discovery conduct — vacated & remanded', answer: 'Christian', aliases: ['Mattel'], caseName: 'Christian v. Mattel, Inc.', description: 'Christian v. Mattel, Inc. — "Claudene" doll copyright suit; R.11 sanctions limited to SIGNED PAPERS, not oral/discovery conduct — vacated & remanded' },
+    { tag: 'SUPPLEMENT', prompt: 'Tax-return data leak suit vs. IRS/Treasury; R.11-type sanctions dispute', answer: 'President', aliases: ['Donald', 'Trump', 'Internal', 'Revenue', 'Service'], caseName: 'President Donald Trump v. Internal Revenue Service', description: 'President Donald Trump v. Internal Revenue Service — Tax-return data leak suit vs. IRS/Treasury; R.11-type sanctions dispute' },
+    { tag: 'SUPPLEMENT', prompt: 'AI-hallucinated case citations in briefing; R.11 sanctions for non-existent authority', answer: 'ByoPlanet', aliases: ['Johansson'], caseName: 'ByoPlanet v. Johansson', description: 'ByoPlanet v. Johansson — AI-hallucinated case citations in briefing; R.11 sanctions for non-existent authority' },
+    { tag: 'SUPPLEMENT', prompt: 'Rothstein Ponzi scheme; R.37(b)/(c) discovery sanctions + inherent-power bad-faith sanctions', answer: 'Coquina', aliases: ['Investments', 'Scott', 'Rothstein', 'TD', 'Bank'], caseName: 'Coquina Investments v. Scott W. Rothstein & TD Bank', description: 'Coquina Investments v. Scott W. Rothstein & TD Bank — Rothstein Ponzi scheme; R.37(b)/(c) discovery sanctions + inherent-power bad-faith sanctions' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Florida SB 4-C immigration law; PI granted, AG held in contempt for continued enforcement', answer: 'Immigrant', aliases: ['Coal', 'Uthmeier'], caseName: 'Fla. Immigrant Coal. v. Uthmeier', description: 'Fla. Immigrant Coal. v. Uthmeier — Florida SB 4-C immigration law; PI granted, AG held in contempt for continued enforcement' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Banquet-gratuity FLSA wage class action; fees/sanctions order', answer: 'Fox', aliases: ['Ritz-Carlton'], caseName: 'Fox v. Ritz-Carlton', description: 'Fox v. Ritz-Carlton — Banquet-gratuity FLSA wage class action; fees/sanctions order' }
+  ];
+
+
   /* ---------------- the arcade's game registry ---------------- */
   /* Adding a new playable game later means adding one more entry here \u2014 */
   /* an id, title, blurb, its own questions bank, and its own How to Play */
@@ -1065,10 +1362,11 @@
       duration: 60,
       orderGate: true,
       orderItems: TWENTY_Q_TITLES,
+      orderAliases: TWENTY_Q_ACRONYMS,
       hasReferenceList: true,
       uniformPromptSize: 34,
       howtoRules: [
-        "First, put all 20 Questions in the right order (1 through 20) by tapping titles into place \u2014 tap a placed tile to send it back if you change your mind.",
+        "First, put all 20 Questions in the right order (1 through 20) by typing each title \u2014 the full title or its acronym (like \u201cSMJ\u201d for Subject Matter Jurisdiction) both count \u2014 and pressing <b>ENTER</b>. A wrong guess flashes red and bounces right back so you can try that slot again immediately. Don't know one? Tap <b>Reveal & Continue</b> to see it and move on.",
         "Once the order is correct, the 60-second drill starts. A clue \u2014 a rule, statute, or concept \u2014 will appear.",
         "Type the <b>number</b> (1\u201320) of the Question it belongs to, then press <b>ENTER</b>.",
         "The numbered list of all 20 Questions stays visible for reference \u2014 hide it any time for a harder run.",
@@ -1080,16 +1378,42 @@
       questions: TWENTY_Q_CLUES
     },
     {
-      id: "prongsOfDoom",
-      title: "Prongs of Doom",
-      blurb: "Which multi-prong test was that again?",
-      status: "soon"
+      id: "caseBrief",
+      title: "Case Brief",
+      blurb: "60-second speed drill — the case facts appear, type one matching word from the case name before time runs out. Close spellings count.",
+      status: "ready",
+      typedAnswer: true,
+      wordMatch: true,
+      howtoRules: [
+        "A case's facts will appear — the banner up top shows where it's from (YSC Casebook, Supplement, or a Footnote case).",
+        "Type <b>one word</b> from the case name (or more, if you want) and press <b>ENTER</b>. Generic words like \"v.\", \"of\", or \"Inc.\" don't count — go for the distinctive part of the name.",
+        "Close spellings count — you don't need to nail every letter.",
+        "Wrong answers cost nothing but time, so keep trying.",
+        "Press <b>ESC</b> or Skip to skip a case you don't know — it comes back around at the end.",
+        "You have 60 seconds. However many you get right is your score.",
+        "You get 3 attempts each visit — every attempt posts your score to the leaderboard."
+      ],
+      questions: CASE_BRIEF_QUESTIONS
     },
     {
-      id: "stuffTheBox",
-      title: "Stuff the Box",
-      blurb: "Sort rules, cases, and remedies into the right remedy box under pressure.",
-      status: "soon"
+      id: "prongOrder",
+      title: "Order in the Court",
+      blurb: "90-second gauntlet — type each test's prongs, in order, before the buzzer. Close spellings count. No partial credit.",
+      status: "ready",
+      duration: 90,
+      orderRounds: true,
+      howtoRules: [
+        "A multi-prong test's name will appear.",
+        "Type its first prong and press <b>ENTER</b>, then the next — in the correct order.",
+        "Close spellings count — you don't need to nail every letter.",
+        "Get every prong right, in order, to lock in the round and move to the next test. No credit until all prongs are correct.",
+        "A wrong entry doesn't cost you anything but time — just try that prong again.",
+        "Press <b>ESC</b> or Skip to bail on a test you don't know — it comes back around at the end.",
+        "Stuck? Tap <b>Text Eva</b> to text a friend for the answer — you get 3 per attempt, and it fills the box in for you to submit.",
+        "You have 90 seconds. However many tests you fully order is your score.",
+        "You get 3 attempts each visit — every attempt posts your score to the leaderboard."
+      ],
+      questions: PRONG_ORDER_QUESTIONS
     }
   ];
 
@@ -1164,7 +1488,8 @@
     timeLeft: 60,
     timerId: null,
     ended: false,
-    orderSolvedFor: {}
+    orderSolvedFor: {},
+    evaLeft: 3
   };
 
   /* ---------------- dom ---------------- */
@@ -1206,11 +1531,27 @@
   var riderWrap = document.getElementById('riderWrap');
   var orderStatus = document.getElementById('orderStatus');
   var orderSlotsEl = document.getElementById('orderSlots');
-  var orderPoolEl = document.getElementById('orderPool');
+  var orderTypeInput = document.getElementById('orderTypeInput');
+  var orderSubmitBtn = document.getElementById('orderSubmitBtn');
+  var orderRevealBtn = document.getElementById('orderRevealBtn');
   var orderContinueBtn = document.getElementById('orderContinueBtn');
   var referencePanel = document.getElementById('referencePanel');
   var referenceListEl = document.getElementById('referenceList');
   var referenceToggleBtn = document.getElementById('referenceToggleBtn');
+  var referencePanelTitleEl = document.getElementById('referencePanelTitle');
+  var keypadArea = document.getElementById('keypadArea');
+  var typeAnswerArea = document.getElementById('typeAnswerArea');
+  var typeInput = document.getElementById('typeInput');
+  var typeFeedback = document.getElementById('typeFeedback');
+  var typeSubmitBtn = document.getElementById('typeSubmitBtn');
+  var typeSkipBtn = document.getElementById('typeSkipBtn');
+  var prongOrderArea = document.getElementById('prongOrderArea');
+  var prongOrderStatusEl = document.getElementById('prongOrderStatus');
+  var prongSlotsEl = document.getElementById('prongSlots');
+  var prongTypeInput = document.getElementById('prongTypeInput');
+  var prongSubmitBtn = document.getElementById('prongSubmitBtn');
+  var prongSkipBtn = document.getElementById('prongSkipBtn');
+  var evaBtn = document.getElementById('evaBtn');
   var highscoreModal = document.getElementById('highscoreModal');
   var highscoreNameInput = document.getElementById('highscoreName');
   var highscoreNameError = document.getElementById('highscoreNameError');
@@ -1466,109 +1807,135 @@
   });
 
   /* ---------------- order gate (e.g. 20 Questions) ---------------- */
-  var orderState = { pool: [], slots: [], locked: [] };
+  var orderTypeState = { activeIdx: 0, locked: [], exact: [], revealed: [] };
 
   function startOrderGate(game){
     var titles = game.orderItems;
-    orderState.pool = shuffle(titles.map(function(title, idx){ return { title: title, correctIndex: idx }; }));
-    orderState.slots = new Array(titles.length).fill(null);
-    orderState.locked = new Array(titles.length).fill(false);
+    orderTypeState.activeIdx = 0;
+    orderTypeState.locked = new Array(titles.length).fill(false);
+    orderTypeState.exact = new Array(titles.length).fill(false);
+    orderTypeState.revealed = new Array(titles.length).fill(false);
     orderContinueBtn.hidden = true;
-    orderStatus.textContent = 'Tap a title below to place it in the next open slot.';
+    orderStatus.textContent = 'Type Question 1, in order, then press Enter.';
+    orderStatus.className = 'order-status';
+    orderTypeInput.value = '';
+    orderTypeInput.classList.remove('correct', 'wrong');
     renderOrderSlots();
-    renderOrderPool();
     show('order');
+    setTimeout(function(){ orderTypeInput.focus(); }, 30);
   }
 
   function renderOrderSlots(){
     orderSlotsEl.innerHTML = '';
-    orderState.slots.forEach(function(item, idx){
+    var titles = getGame(state.gameId).orderItems;
+    titles.forEach(function(title, idx){
+      var isLocked = orderTypeState.locked[idx];
+      var isRevealed = orderTypeState.revealed[idx];
+      var isExact = orderTypeState.exact[idx];
       var row = document.createElement('div');
       row.className = 'order-slot' +
-        (orderState.locked[idx] ? ' locked' : (item ? ' filled' : ''));
+        (isLocked ? (isRevealed ? ' locked revealed' : ' locked') : (idx === orderTypeState.activeIdx ? ' active' : ''));
       var num = document.createElement('span');
       num.className = 'order-slot-num';
       num.textContent = (idx + 1) + '.';
       var label = document.createElement('span');
       label.className = 'order-slot-label';
-      label.textContent = item ? item.title : '';
+      label.textContent = isLocked ? (((isRevealed || isExact) ? '' : '\u2248 ') + title) : '';
       row.appendChild(num);
       row.appendChild(label);
-      if (item && !orderState.locked[idx]){
-        row.addEventListener('click', function(){ unplaceSlot(idx); });
-      }
       orderSlotsEl.appendChild(row);
     });
   }
 
-  function renderOrderPool(){
-    orderPoolEl.innerHTML = '';
-    orderState.pool.forEach(function(item, poolIdx){
-      var tile = document.createElement('button');
-      tile.type = 'button';
-      tile.className = 'order-tile';
-      tile.textContent = item.title;
-      tile.addEventListener('click', function(){ placeInNextSlot(poolIdx); });
-      orderPoolEl.appendChild(tile);
-    });
-  }
-
-  function placeInNextSlot(poolIdx){
-    var nextIdx = -1;
-    for (var i=0;i<orderState.slots.length;i++){
-      if (orderState.slots[i] === null){ nextIdx = i; break; }
-    }
-    if (nextIdx === -1) return;
-    var item = orderState.pool[poolIdx];
-    orderState.slots[nextIdx] = item;
-    orderState.pool.splice(poolIdx, 1);
-    renderOrderSlots();
-    renderOrderPool();
-    var allFilled = orderState.slots.every(function(s){ return s !== null; });
-    if (allFilled) checkOrder();
-  }
-
-  function unplaceSlot(idx){
-    var item = orderState.slots[idx];
-    if (!item) return;
-    orderState.slots[idx] = null;
-    orderState.pool.push(item);
-    renderOrderSlots();
-    renderOrderPool();
-    orderStatus.textContent = 'Tap a title below to place it in the next open slot.';
-  }
-
-  function checkOrder(){
-    var allCorrect = true;
-    orderState.slots.forEach(function(item, idx){
-      if (item && item.correctIndex === idx){
-        orderState.locked[idx] = true;
-      } else {
-        allCorrect = false;
+  function submitOrderAnswer(){
+    var titles = getGame(state.gameId).orderItems;
+    var idx = orderTypeState.activeIdx;
+    if (idx >= titles.length) return;
+    var val = orderTypeInput.value;
+    if (!val.trim()) return;
+    var aliasesArr = getGame(state.gameId).orderAliases || [];
+    var candidates = [titles[idx]].concat(aliasesArr[idx] || []);
+    var match = bestFuzzyMatch(val, candidates);
+    if (match){
+      orderTypeState.locked[idx] = true;
+      orderTypeState.exact[idx] = !!match.exact;
+      orderTypeInput.value = '';
+      orderTypeInput.classList.remove('wrong');
+      orderTypeState.activeIdx++;
+      renderOrderSlots();
+      if (orderTypeState.activeIdx >= titles.length){
+        orderStatus.textContent = 'All 20 correct! Nice work.';
+        orderStatus.className = 'order-status';
+        orderContinueBtn.hidden = false;
+        return;
       }
-    });
-    for (var i=0;i<orderState.slots.length;i++){
-      if (!orderState.locked[i] && orderState.slots[i]){
-        orderState.pool.push(orderState.slots[i]);
-        orderState.slots[i] = null;
-      }
-    }
-    if (allCorrect){
-      orderStatus.textContent = 'All 20 correct! Nice work.';
-      orderContinueBtn.hidden = false;
+      orderStatus.textContent = (match.exact ? 'Correct!' : 'Close \u2014 it\u2019s \u201c' + titles[idx] + '.\u201d') + ' Now type Question ' + (orderTypeState.activeIdx + 1) + '.';
+      orderStatus.className = match.exact ? 'order-status' : 'order-status close';
+      orderTypeInput.focus();
     } else {
-      orderState.pool = shuffle(orderState.pool);
-      var correctCount = orderState.locked.filter(function(v){ return v; }).length;
-      orderStatus.textContent = correctCount + ' of 20 correct so far \u2014 the rest are back in the pool. Keep going.';
+      orderTypeInput.classList.add('wrong');
+      setTimeout(function(){ orderTypeInput.classList.remove('wrong'); }, 300);
+      orderStatus.textContent = 'Not quite \u2014 try Question ' + (idx + 1) + ' again.';
+      orderStatus.className = 'order-status wrong';
+      orderTypeInput.value = '';
+      orderTypeInput.focus();
     }
-    renderOrderSlots();
-    renderOrderPool();
   }
+
+  function revealOrderAnswer(){
+    var titles = getGame(state.gameId).orderItems;
+    var idx = orderTypeState.activeIdx;
+    if (idx >= titles.length) return;
+    orderTypeState.locked[idx] = true;
+    orderTypeState.exact[idx] = false;
+    orderTypeState.revealed[idx] = true;
+    orderTypeState.activeIdx++;
+    orderTypeInput.value = '';
+    orderTypeInput.classList.remove('wrong');
+    renderOrderSlots();
+    if (orderTypeState.activeIdx >= titles.length){
+      orderStatus.textContent = 'All 20 done \u2014 some revealed. Review those before you continue!';
+      orderStatus.className = 'order-status close';
+      orderContinueBtn.hidden = false;
+      return;
+    }
+    orderStatus.textContent = 'Revealed \u201c' + titles[idx] + '.\u201d Now type Question ' + (orderTypeState.activeIdx + 1) + '.';
+    orderStatus.className = 'order-status close';
+    orderTypeInput.focus();
+  }
+
+  orderSubmitBtn.addEventListener('click', submitOrderAnswer);
+  orderRevealBtn.addEventListener('click', revealOrderAnswer);
+  orderTypeInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); submitOrderAnswer(); }
+    else if (e.key === 'Escape'){ e.preventDefault(); revealOrderAnswer(); }
+  });
 
   orderContinueBtn.addEventListener('click', function(){
     state.orderSolvedFor[state.gameId] = true;
     startAttempt();
   });
+
+  /* ---------------- Text Eva (Order in the Court lifeline) ---------------- */
+  function updateEvaBtn(){
+    if (!evaBtn) return;
+    evaBtn.textContent = 'Text Eva (' + state.evaLeft + ')';
+    evaBtn.disabled = state.evaLeft <= 0;
+  }
+
+  function useTextEva(){
+    if (state.ended) return;
+    if (state.evaLeft <= 0) return;
+    var target = prongRoundState.targets[prongRoundState.activeIdx];
+    if (!target) return;
+    state.evaLeft--;
+    updateEvaBtn();
+    prongTypeInput.value = target.short;
+    prongTypeInput.classList.remove('wrong');
+    prongTypeInput.focus();
+  }
+
+  evaBtn.addEventListener('click', useTextEva);
 
   referenceToggleBtn.addEventListener('click', function(){
     var nowHidden = !referenceListEl.hidden;
@@ -1609,17 +1976,27 @@
     state.buffer = '';
     state.timeLeft = game.duration || 60;
     state.ended = false;
+    state.evaLeft = 3;
+    updateEvaBtn();
     referencePanel.hidden = !game.hasReferenceList;
     document.querySelector('.game-body').classList.toggle('has-reference', !!game.hasReferenceList);
     if (game.hasReferenceList){
+      referencePanelTitleEl.textContent = game.referenceLabel || game.title;
       renderReferenceList(game.orderItems || []);
-      referenceListEl.hidden = false;
-      referenceToggleBtn.textContent = 'Hide List';
+      var startListHidden = !!game.referenceDefaultHidden;
+      referenceListEl.hidden = startListHidden;
+      referenceToggleBtn.textContent = startListHidden ? 'Show List' : 'Hide List';
     }
+    var answerMode = game.orderRounds ? 'order' : (game.typedAnswer ? 'type' : 'keypad');
+    keypadArea.hidden = answerMode !== 'keypad';
+    typeAnswerArea.hidden = answerMode !== 'type';
+    prongOrderArea.hidden = answerMode !== 'order';
     show('game');
     renderLives(gameLives);
     updateScoreDisplay();
-    renderRound();
+    if (answerMode === 'order') renderProngRound();
+    else if (answerMode === 'type') renderTypeRound();
+    else renderRound();
     if (state.timerId) clearInterval(state.timerId);
     state.timerId = setInterval(tick, 100);
     updateTimerDisplay();
@@ -1647,15 +2024,26 @@
     scoreDisplay.textContent = state.correctCount;
   }
 
+  /* Sizing follows WCAG 2.2's resize-text guidance (1.4.4/1.4.12) treating
+     16px as the smallest acceptable body-text floor, scaled up toward the
+     24–32px "headline" range used by Material Design 3's type scale and
+     Apple's Human Interface Guidelines for a single prominent on-screen
+     statement (which is what the prompt box is — one focal line the
+     player reads before answering). Short prompts get true headline size;
+     the longest ones in this game (Case Brief facts, ~186 chars) still sit
+     at 17px — above the 16px floor and well above the 14px this used to
+     drop to. */
   function sizePromptText(text){
     var len = text.length;
     var size;
-    if (len <= 30) size = 26;
-    else if (len <= 45) size = 24;
-    else if (len <= 60) size = 21;
-    else if (len <= 80) size = 18;
-    else if (len <= 105) size = 16;
-    else size = 14;
+    if (len <= 30) size = 34;
+    else if (len <= 45) size = 30;
+    else if (len <= 60) size = 27;
+    else if (len <= 80) size = 24;
+    else if (len <= 105) size = 21;
+    else if (len <= 130) size = 19;
+    else if (len <= 160) size = 18;
+    else size = 17;
     return size;
   }
 
@@ -1695,6 +2083,240 @@
   function renderReadout(){
     digitReadout.textContent = state.buffer || '—';
   }
+
+  /* ---------------- fuzzy ("close enough") spelling match ---------------- */
+  function normalizeAnswer(s){
+    return String(s || '')
+      .toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/[’‘]/g, "'")
+      .replace(/[“”]/g, '"')
+      .replace(/[—–]/g, '-')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .replace(/\s+/g, ' ');
+  }
+
+  function levenshteinDistance(a, b){
+    var m = a.length, n = b.length;
+    if (m === 0) return n;
+    if (n === 0) return m;
+    var prev = new Array(n + 1);
+    var curr = new Array(n + 1);
+    for (var j = 0; j <= n; j++) prev[j] = j;
+    for (var i = 1; i <= m; i++){
+      curr[0] = i;
+      for (var k = 1; k <= n; k++){
+        var cost = a.charAt(i - 1) === b.charAt(k - 1) ? 0 : 1;
+        curr[k] = Math.min(prev[k] + 1, curr[k - 1] + 1, prev[k - 1] + cost);
+      }
+      var tmp = prev; prev = curr; curr = tmp;
+    }
+    return prev[n];
+  }
+
+  function bestFuzzyMatch(input, candidates){
+    var a = normalizeAnswer(input);
+    if (!a) return null;
+    var best = null, bestDist = Infinity, bestExact = false;
+    (candidates || []).forEach(function(c){
+      var b = normalizeAnswer(c);
+      if (!b) return;
+      if (a.length < Math.max(2, Math.floor(b.length * 0.5))) return;
+      var dist = (a === b) ? 0 : levenshteinDistance(a, b);
+      var threshold = Math.max(1, Math.round(b.length * 0.22));
+      if (dist <= threshold && dist < bestDist){
+        bestDist = dist;
+        best = c;
+        bestExact = (dist === 0);
+      }
+    });
+    return best === null ? null : { text: best, exact: bestExact, distance: bestDist };
+  }
+
+  /* ---------------- typed free-recall engine (e.g. Prongs of Doom) ---------------- */
+  function renderTypeRound(){
+    var q = state.queue[0];
+    var cat = getTagCategory(q.tag);
+    promptTag.className = 'prompt-eyebrow tag-' + cat;
+    promptTag.innerHTML = (cat === 'fla' ? FL_ICON_SVG : '') + q.tag;
+    promptText.textContent = q.prompt;
+    promptText.style.fontSize = sizePromptText(q.prompt).toString() + 'px';
+    typeInput.value = '';
+    typeInput.classList.remove('correct', 'wrong');
+    typeFeedback.textContent = '\u00a0';
+    typeFeedback.className = 'type-feedback';
+    setTimeout(function(){ typeInput.focus(); }, 30);
+  }
+
+  function submitTypedAnswer(){
+    if (state.ended) return;
+    var val = typeInput.value;
+    if (!val.trim()) return;
+    var q = state.queue[0];
+    var game = getGame(state.gameId);
+    var candidates = [q.answer].concat(q.aliases || []);
+    var match;
+    if (game && game.wordMatch){
+      var words = normalizeAnswer(val).split(' ').filter(function(w){ return w; });
+      match = null;
+      words.forEach(function(w){
+        var m = bestFuzzyMatch(w, candidates);
+        if (m && (!match || m.distance < match.distance)) match = m;
+      });
+    } else {
+      match = bestFuzzyMatch(val, candidates);
+    }
+    if (match){
+      typeInput.classList.remove('wrong');
+      typeInput.classList.add('correct');
+      state.correctCount++;
+      updateScoreDisplay();
+      state.queue.shift();
+      if (game && game.wordMatch){
+        typeFeedback.textContent = q.caseName || q.answer;
+        typeFeedback.className = 'type-feedback close';
+      } else if (match.exact){
+        typeFeedback.textContent = '\u00a0';
+        typeFeedback.className = 'type-feedback';
+      } else {
+        typeFeedback.textContent = 'Close \u2014 it\u2019s \u201c' + q.answer + '.\u201d';
+        typeFeedback.className = 'type-feedback close';
+      }
+      if (state.queue.length === 0){
+        endAttempt();
+        return;
+      }
+      setTimeout(renderTypeRound, (game && game.wordMatch) ? 550 : (match.exact ? 200 : 750));
+    } else {
+      typeInput.classList.remove('correct');
+      typeInput.classList.add('wrong');
+      recordMiss(q, 'wrong');
+      typeFeedback.textContent = 'Not quite \u2014 try again.';
+      typeFeedback.className = 'type-feedback wrong';
+      typeInput.value = '';
+      setTimeout(function(){ typeInput.classList.remove('wrong'); }, 300);
+    }
+  }
+
+  function skipTypeRound(){
+    if (state.ended) return;
+    if (state.queue.length <= 1) return;
+    var q = state.queue.shift();
+    recordMiss(q, 'skipped');
+    state.queue.push(q);
+    renderTypeRound();
+  }
+
+  typeSubmitBtn.addEventListener('click', submitTypedAnswer);
+  typeSkipBtn.addEventListener('click', skipTypeRound);
+  typeInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); submitTypedAnswer(); }
+    else if (e.key === 'Escape'){ e.preventDefault(); skipTypeRound(); }
+  });
+
+  /* ---------------- typed sequential-recall engine (e.g. Order in the Court) ---------------- */
+  var prongRoundState = { targets: [], filled: [], activeIdx: 0 };
+
+  function renderProngRound(){
+    var q = state.queue[0];
+    promptTag.className = 'prompt-eyebrow tag-default';
+    promptTag.textContent = q.tag;
+    promptText.textContent = q.prompt;
+    promptText.style.fontSize = sizePromptText(q.prompt).toString() + 'px';
+    prongRoundState.targets = q.prongs;
+    prongRoundState.filled = new Array(q.prongs.length).fill(null);
+    prongRoundState.activeIdx = 0;
+    prongOrderStatusEl.textContent = 'Type prong 1 of ' + q.prongs.length + '.';
+    prongOrderStatusEl.className = 'prong-order-status';
+    prongTypeInput.value = '';
+    prongTypeInput.classList.remove('correct', 'wrong');
+    renderProngSlots();
+    setTimeout(function(){ prongTypeInput.focus(); }, 30);
+  }
+
+  function renderProngSlots(){
+    prongSlotsEl.innerHTML = '';
+    prongRoundState.targets.forEach(function(target, idx){
+      var filled = prongRoundState.filled[idx];
+      var row = document.createElement('div');
+      row.className = 'prong-slot' +
+        (filled ? ' locked' : (idx === prongRoundState.activeIdx ? ' active' : ''));
+      var num = document.createElement('span');
+      num.className = 'prong-slot-num';
+      num.textContent = (idx + 1) + '.';
+      var label = document.createElement('span');
+      label.className = 'prong-slot-label';
+      label.textContent = filled ? ((filled.exact ? '' : '\u2248 ') + filled.text) : '';
+      row.appendChild(num);
+      row.appendChild(label);
+      prongSlotsEl.appendChild(row);
+    });
+  }
+
+  function submitProngAnswer(){
+    if (state.ended) return;
+    var val = prongTypeInput.value;
+    if (!val.trim()) return;
+    var idx = prongRoundState.activeIdx;
+    var target = prongRoundState.targets[idx];
+    var candidates = [target.short].concat(target.aliases || []);
+    var match = bestFuzzyMatch(val, candidates);
+    if (match){
+      prongRoundState.filled[idx] = { text: target.full, exact: match.exact };
+      prongRoundState.activeIdx++;
+      prongTypeInput.value = '';
+      prongTypeInput.classList.remove('wrong');
+      renderProngSlots();
+      if (prongRoundState.activeIdx >= prongRoundState.targets.length){
+        state.correctCount++;
+        updateScoreDisplay();
+        state.queue.shift();
+        if (state.queue.length === 0){
+          endAttempt();
+          return;
+        }
+        prongOrderStatusEl.textContent = 'Correct! Next test loading\u2026';
+        prongOrderStatusEl.className = 'prong-order-status close';
+        setTimeout(renderProngRound, 550);
+        return;
+      }
+      var nextNum = prongRoundState.activeIdx + 1;
+      if (match.exact){
+        prongOrderStatusEl.textContent = 'Correct \u2014 now type prong ' + nextNum + ' of ' + prongRoundState.targets.length + '.';
+        prongOrderStatusEl.className = 'prong-order-status';
+      } else {
+        prongOrderStatusEl.textContent = 'Close \u2014 it\u2019s \u201c' + target.full + '.\u201d Now type prong ' + nextNum + ' of ' + prongRoundState.targets.length + '.';
+        prongOrderStatusEl.className = 'prong-order-status close';
+      }
+      prongTypeInput.focus();
+    } else {
+      recordMiss(state.queue[0], 'wrong');
+      prongTypeInput.classList.add('wrong');
+      setTimeout(function(){ prongTypeInput.classList.remove('wrong'); }, 300);
+      prongOrderStatusEl.textContent = 'Not quite \u2014 try prong ' + (idx + 1) + ' again.';
+      prongOrderStatusEl.className = 'prong-order-status wrong';
+      prongTypeInput.value = '';
+      prongTypeInput.focus();
+    }
+  }
+
+  function skipProngRound(){
+    if (state.ended) return;
+    if (state.queue.length <= 1) return;
+    var q = state.queue.shift();
+    recordMiss(q, 'skipped');
+    state.queue.push(q);
+    renderProngRound();
+  }
+
+  prongSubmitBtn.addEventListener('click', submitProngAnswer);
+  prongSkipBtn.addEventListener('click', skipProngRound);
+  prongTypeInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); submitProngAnswer(); }
+    else if (e.key === 'Escape'){ e.preventDefault(); skipProngRound(); }
+  });
+
 
   function flashReadout(cls){
     digitReadout.classList.remove('correct','wrong');
@@ -1795,6 +2417,12 @@
   };
   document.addEventListener('keydown', function(e){
     if (screens.game.hidden || state.ended) return;
+    var activeGame = getGame(state.gameId);
+    if (activeGame && (activeGame.orderRounds || activeGame.typedAnswer)){
+      /* these games own their input via listeners bound directly to their text fields —
+         space must stay free for typing multi-word answers. */
+      return;
+    }
     if (e.code === 'Backspace'){ e.preventDefault(); backspaceChar(); return; }
     if (e.code === 'Enter' || e.code === 'NumpadEnter'){ e.preventDefault(); submitAnswer(); return; }
     if (e.code === 'Space'){ e.preventDefault(); skipRound(); return; }
