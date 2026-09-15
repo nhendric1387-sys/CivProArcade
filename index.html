@@ -26,6 +26,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics-compat.js"></script>
 <style>
   :root{
     color-scheme: dark;
@@ -90,6 +91,37 @@
       0 0 0 8px var(--lantern-dim),
       0 20px 60px rgba(0,0,0,.6);
     overflow:hidden;
+  }
+
+  /* ---------- campaign badge (home screen only) ---------- */
+  #arcadeWrap{
+    position:relative;
+    width:100%;
+    max-width:1200px;
+  }
+
+  #voteLogo{
+    position:absolute;
+    top:-46px;
+    left:-28px;
+    width:260px;
+    max-width:34vw;
+    z-index:70;
+    pointer-events:none;
+    filter:drop-shadow(3px 5px 0 rgba(0,0,0,.5));
+    transform-origin:35% 35%;
+    animation:voteLogoIntro 1.1s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  @keyframes voteLogoIntro{
+    0%{ transform:scale(0) rotate(-20deg); opacity:0; }
+    55%{ transform:scale(1.14) rotate(370deg); opacity:1; }
+    75%{ transform:scale(.94) rotate(354deg); }
+    100%{ transform:scale(1) rotate(360deg); opacity:1; }
+  }
+
+  @media (max-width:640px){
+    #voteLogo{ width:150px; top:-24px; left:-14px; }
   }
 
   #cabinet::before{ /* marquee strip */
@@ -762,6 +794,7 @@
 </style>
 </head>
 <body>
+<div id="arcadeWrap">
 <div id="cabinet">
   <div class="crt-overlay"></div>
 
@@ -959,6 +992,8 @@
     </div>
   </div>
 </div>
+<img id="voteLogo" alt="Vote Natalie Daly \u2014 1L Senate" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB9cAAATWCAMAAACoi9ayAAADAFBMVEXXIR7///////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADj8QT/AAAAA3RSTlP//wDXyg1BAAAwKklEQVR42u3d63YbubGAUUDv/9DJeDlemRlR7G7iUlXY34+cJMehqAK6tqm5tS9JklSlZgSSJHFdkiRxXZIkcV2SJHFdkiSuS5IkrkuSJK5LkiSuS5IkrkuSxHVJksR1SZLEdUmSxHVJkrguSZK4LkmSuC5JkrguSZK4LkkS1yVJEtclSRLXJUkS1yVJEtclSeK6JEniuiRJ4rokSeK6JElclyRJXJckSVyXJElclyRJXJckieuSJInrkiSJ65IkieuSJHFdkiRxXZIkcV2SJHFdkiRxXZIkrkuSJK5LkiSuS5IkrktS7F17o6sv8f1/b9Zcl6QyJAruHhgjkIR1rovrkoR1rovrksR1rovrkrgurovrkrjOdXFdkrjOdXFdkrjOdXFdkrjOdXFdEtfFdXFdEte5Lq5LEte5Lq5LEte5Lq5LEqO5Lq5L4jrXxXVJ4jrXxXVJ4jrXxXVJ4jrXxXVJXBfXxXVJXOe6uC5JXOe6uC5JXOe6uC5JXOe6uC6J6+K6uC6J61wX1yWJ61wX1yWJ61wX1yVxXVwX1yVxneviuiRx3e8DxHXJE6XRfpgZ2cV1id/p/Hj1awyM6+K6TpIU60UAMRaui+uC2L5tRIHBR2YqXBfXxTCuc11cF9fFda5zXVznurhuG2GI61wX18V1rovrXBfXxXWuc11cF9fFdTPhurjOdYnrXOe6YxHXxXWui+tcF9fFda7zw0A9SeK6GMZ1rovr4rq4zvXYB2YuXBfXxTCuc11cF9fFda77Oby4znVx3TbCENe5Lq6L61wX17kurovrXOe6uC6ui+tmwnVxnesS17nOdecirovrXNdU17vuxHVxXVznOte5znWui+tcF9dLud6+PxMLkOviOtfF9Yyu+yjPdXH9XNfhPObILvxiVHNdXBfXiV4nVHNdXNdhlL17vwjnOte5znVBu/gfzjUarnOd61wX1rkurnNdXBfXuS6uc11cF9e5LlRzXVwXu7jOda5zneviOte5znWuc53r4jrXxXWui+viOtfFda6L62uxe/X/+z23cBKxa5XrAFllj3FxXVwvjplRcJ3r4rq4Xocyw+A618V1DXY9+SpvYOc617lutlzneioJuM51rnPdbLnOda5znetc5zrXuX6W643rXOc6QLjOdfm8znWuc11c57q4znWuc53r4rq4znWuc53rZst1rnOd61znOte5znWuc53rXBfXuS6uc53rXGePSXNdXOc617nOdXFdXOc617nOdbMFO9e5znWu04brp7oOfK5znesVJkYbrnMd7FznOte5Lq5zXVzn+tTnaMBXLbvCuM51rnOd61xP5nrjOte5brZc5zrXq7jeuP5snrThOte5znWuc93ndXGd6+I617nu8zp7TJrr2uJ64zrXuQ4QrnOd6z6vc53rXBfXuS6uc53rXOe6uC6uF2Wd61znuriu8/74euM617nOdbPlOtfruH5gXOc6182W62rs5jrXuc51rnO9tuuI5DrXuc51rnO9jOuE5DrXuc51rnOd6+I618V1rovr4jrX2WPSXBfXxXWuc11c1wDXi1/trM8u17nOdbPlurjOda5znetc5zrXuc51rovrXBfXuc51rrOH61wX17nOda5zXVwX17nOda5z3Wy5znWucz3DQH5+m1znutmuhJ34XOd6ONfPXHGPWKcN17nuozzXuc51rovrXBfXuX75G/z0x/Bcvz43gHCd61znOtejP7tWHG247tJznetc5zrXxXWuc53rXOc619lj0lwX17nOda5zXVwX17nOdbPiutlynetc57oVRxuuu/Rc5zrXuc51cZ3r4jrXuc519pg018V1rrOK61wX18V1rnPdrLju0nOd61znOtfFda5znetc5zrXxXWui+tc5zrXuS6ui+tc5zrXuW62XOc617luxdGG6y4917nOda5zXVznOte5znWuc509Js11cZ3rrOI618V1cZ3rXDcrrpst17nOda5bcbThOte5znWuc53r4jrXxXWuc53r7DFprovrXGcV17lutlznOte53uw42nDdnSc+17me6xu09wZtPyPkOtfBznWuc53r4jrXwc51rnOd61wX18V1rluSXOe62XKd61znuu1nkFznOte5znWuc11c5zrXuc51rnPd9E2a6+I613HEda6L6+I618V1rpst17nOda7bfgbJda5znetc5zrXxXWuc53rXOc6103fpLkurnPdkuQ6182W61znOtdtP4PkupvNda5znetcF9e5znWuc53rXDd9k+a6uM51rnOd6+K6uM51S5LrXDdbrnOd61y3/QyS61znOte5znWui+tc5zrXuc51rpu+SXNdXOe6Jcl1rovr4jrXbT+D5LqbzXWuc53rtp9Bcp3rXOc617nOdXGd61znOte5znWui+viOtctSa5z3WyzBWWuc51GXOe66rgOdq5z3Srcc3PMiutcBzvXuc51rovrXOc617nOda5zXVwX17kurnPdbLnOda5z3VKkDde5znWuc53rXBfXuc51rnOd61w3ZpPmOte5znWrkOtcF9fFda6L61w3W65znetctxSNmOtc5zrXuc51rovrXOc617nOda4bs0lzXVznuk3Ida6bLde5znWui+tcxzrXuc51rnNdZ7nexHWuc53rXBfXxXWuc53rXOc617kurnOdOVznOte5znWuc11c5zrXuc51rnOd6+K6uM51rnOd68bMdXGd61znOte5znWui+tcF9e5znWuc53rXAeOGXOd61wv73r0B7CM62V/Y8J1Y+a6uJ7A9VbkyeM6cMyY61wHPte5Hub7AAfXuc51sHOd6z6vy4y5znWuc53rXOe6uC6uc53rfg7PdfPkurjOda4zJ/LONsPRBHJdXOc614HCda5znetc5zrXxXWuc53rXOc610Fk9lwX17nOda5z3Ti5Lq5znets4TrXuc51cZ3r4jrXuc51rnOd6yAye65znetc5/rObwQoXOc617nOda5zXVznOte5znWucx1EZs91cZ3rXOc6142T6+I617nOFq5znetcF9e5Lq5znetc5zrXuQ4is+c617nOda5znevGyXVxnetc5zrXjZPr4jrXuc6WIDvbELkurnOd60+/EXJwnetc57q4znVxnetc5/pJrn9VXWlc1+ylbRijMxVxfYTrr3918p3Gdc1e5VjnurieyfUvrnOd67eu0J//3LjOdRGf61zn+hmrnOtcF9i5znWuF1rlXOe6uM51rnOd61znurjOda6L61znOte5znWuc53rXEco17nOda5znetcF9e5znWucx1gXBfXuc51cZ3rXOc617nOdXGd61znOte5znWuc53r4jrXuT7k7RKX61znurjOda6L61znOte5znWuc53rXBfXuc51rnOd61wX17nOda5zHWBcF9e5znVxnetc5zrXuc51cZ3rXOc617nOda5zneviOte5znWuc53r4jrXuc51rnPd5RLXuc51cZ3rriTXuc51rovrXHc4XOc617luiXKd61znOte5znWuo8Ml5zrXuc71tOO2RLnOda5znetc5zrXuc51cZ3rXOc617nOdeBznetc5zrXue5wwM51rnOd61znOte5znWuc53r6OA617nOda5znetc57q4znWuc53rXOc617nOda6PmLYlynWuc53rXOc617nOda6L61znOte5znWuc53rXOc617nOdYfDda5znetc5zrXuc51rnOd61xHB9e5znWuc53rXOc618V1rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuc51rnOd61wX17m+1vXvH8fG9VnPLNe5znWui+urXE/5AXjX2y258rjOda5znetc5zrXuY4OrnOd61znOte5znWui+tc5zrXuc51rnOd61znOte5zvWdp/PrX/9+VrznOte5znWuc90Hea5znetc5zrXuc51rnOd61znOte5znWuc53rXOc618V1rnOd61znOte5TvbvHLuNH9e5znWuc53rXPdZnutc5zrXCcF1rnOd61znOte5Lq5znetc5zrXuc51rnOd61znOte5znWuc53rXOc617nOda6Hcv2L61znOte5znWu13H9kfZc5zrXuc51rnM9ketfXOc617nOdafGda5znet2Jde5znWuc53rXOc618V1rnOd61znOte5Lq5zneuzviu7kutc5zrXuc51rnOd6+I617nOda5znetcF9e5znWuc53r7irXuc51rnOd61znOte5znWuc50QXOc617nOda5znetcF9e5znWuc53rXOc617nO9RHflF3Jda5znetc5zrXuc51cZ3rXOc617nOda6L61znOte5znV3letc5zrXuc51rnOd61znOte5Tgiuc53rXOc617nOda7rePK5znWuc53rXBfXuc51rnOd606N61znOte5znWuc53rXOc617nOdXGd61znOte5znWui+tc5zrXuc51rnOd61znOte5znWuc53rXOc61wnBda5znetc5zrXuS6uc53rXOc617nOdXGd61znOte5znWuc53rXOc617nOda5znetc5zrXxXWuc53rXOc617kurnOd61znOte5Lq5znetc5zrXnRrXuc51rnOd61znOte5znWuc53r4jrXuc51rnOd61wX17nOda5znetc5zrXuc51rnOd61znOte5znWuE4LrXOc617nOda5zXUAGO9e5znWuc53r4jrXuc51rnPdqXGd61znOte5znWuc53rXOc617kurhOf61znOte5znVxnetc5zrXuc51cZ3rXOc617nu1LjOda5zneuE4DrXuc51rnOd61wX17nOda5znetc57q4znWuc53rXOc617nOda5znetc5zrXuc51rnOdEFznOte5znWuc53rXBfXuc51rnOd61wX17nOda5znetOjetc5zrXuc51rnOd61znOte5znVxnetc5zrXuc51rovrXOc617nOda6L61znOte5znWuc53rXOc61wnBdXxznetc5zrXuc51cZ3rXOc617nOdXGd61znOte57nC4frDrQZ9ZrnOd61znurg+1PXGda5bolznOte5znWuc53rXOe6uM51rnOd61znurjO9ZgPKde5znWuC+xc3+n6SSuP61znOteJz3Wuc53r6OA618HOda5znetc57q4znWuc53rXOe6uM51rnOd61znurjOda5znetc5zrXuV7G9cZ1rnOd61znOte5znWuc11c5zrXuc51rnOd6+I617nOda5zneviOte5znWuc53rXOc617nOdXRwnetc5zrXuc51rnNdXOc617nOda5zXVznOte5znWuOxxxnetc5zrXuc51rnO9pOv+PrJc5zrXuc51rnOd61znurjOda5znetc5zrXxXWuc53rXOc61nW264/F5zrXbVGuJ5oMusR1rk/cCVznOte5Lq5zvc5O4DrXuc51cZ3rXOc617nOdXGd61znOte5LnGd61znOte5Lq5znetc5zrAuC6wc53rXOc617muc8HnOte5znWuc111YOc617nOda5zXVznOte5znWuS1znOte5znWui+tc5zrXuc51YxHXuc51rnOd61wX17nOda5znetcF9e5znWuc53rEte5znWuA4zr4jrXuc51rnOd6+I616ssBa5znetcF9e5znWuc53rXBfXuc51rnOd6xLXuc51rnOd6+I617HOda4DjOviOte5znWuc53r4jrXuc51rnOd6+I617nOda5zXeI617nOda5zXVznOte5znWuG4u4znWuc53rXOe6uM51rnOd61znurjOda5znetcl7jOda5zHWBcF9e5znWuc53rXBfXuc51rnOd61xXLdi5znWuc53rXFcd8LnO9a3fLde5znWBnetc5zrXuc51cZ3rXOc617nOdXGd61znOte5znVxnetc5zrXuS5xnetc5zrAuC6uc53rXOc617kurnOd61znOte5Lq5znetc5zrXJa5z/RjXG9e5znWJ61znOtcBxnVxnetc5zrXuc51cZ3rXOc617nOdXGd61znOte5LnGd61znOte5LnGd61znOteNRVznOte5znWuc11c5zrXuc51rnNdXOc617nOda5LXOc617nOda6L61znOte5znWui+tc5zrXuc51rovrXOc617nOdYnrXOc617leZjKh3yciuc51rnOd61y3YsR1rnN91HdrV3LdiuA62LnuoeM617kurhOf61z3c3iuc92KEde5znWuc53r7qq4znWuc53rXOe6uO6h4zrXCcF1rovrXOc617nOdXF9s+uHPcxc5zrXrQKui+seOq5zneviOte5znWuc53rXBfXuc51rnOd61aMuM51rnOd61x3auI617luVxKC61wX1z1eXOc618V1rnO90NPFda5zXVznOte5znWuc53r4jrXuc51rnPd5hHXuc51rnOd61wX1z1dXOc6IbjOda5znetc5zrXuS6uc53rXOc6120ecZ3rXOc617nu1MR1rnOd61znOtfFdU8X17nOdXGd61znOte5znWui+tc5zrXuc51m0dc57qVx3Wuc53r4jrXuc51QnCd6/oE9umuf3Gd61znOte5rlXgz3f9mfieLq5znRBc57ruw851rnOd61znurg+G3ZPF9e5Tgiuc11c5zrXuc51rovrXOc617nOda6L61znOte5znWnJq5znetc5zrXuS6ue7q4znWui+viOtfDDsFpcp3rXNdI1rnOda5znetcF9e5znWuc90ld2riOte5znWuc53r4rqni+tc57q4Lq5zPfoMnCbXuc51cd3TxXWuc11c5zrXue7n8FznOtfFda5z3a7kOtfdVXGd61aeXcl1l5zr4jrXrTyuE8Il57q4znVxnevuqrjOda6L61x3V8V1rnPdruS6S+7UxHWuW3lOk+suOdc1DXauc11c57q7Kq5znet2JdddcqcmrnPdynOaXHfJua55sHOd6+I6191V1fGe61wX17nurorrXOe6Xcl1l9ypietct/KcJtddcq6L654uK4/rXBfXxXWui+tcd1fFda5zXVznursqrnOd63Yl111yrovrXLfyuE4Il5zr4jrXxXWui+viOtfFda67q+I617luV3Kd6zaPuM51K89pct0l57q47umy8rjOdXFdXOe6uM51d1Vc5zrXxXWuu6viOte5bldy3SV3auI61608p8l1l5zr4rqny8rjOtfFdXGd6+I6191VcZ3reZ6u31/3v/9iu310bv/7NysP0h3mOtfFdU+XZVjn2AzDVea6uO7psgy5znVxXVznurjOdVdYXOc61y1FrpuMKyyuc90ydGxcd5W5Lq57uixDrhPCVea6uO7psgy5znVXWEfLznWui+tcd4XFda5z3VLkuqvs1MR1rluGjo3rrjLXxXVPl2XIda6L6+I618V1rrvC4vpu17M/6pahpch1V5nr4jrXLUOuG4arzHVx3dNlGXKd6+K6uM51cZ3rrrC4znWuW4pcd5VdYXGd65ahY+O6q8x1cZ3rliHXuS6ui+tcF9e57gqL61wv8HRZb1znuissrnOd65aiE+O6Kyyuc53rliLX3WWnJq5z3S50bFx3l7kurkd71COeqvXGda67wuI61+s8R9Yb17nuCovrXOe6pejEuO4Ki+tc57qlyHV32amJ61y3Cy1FrrvLXBfXuW4Xcp3r4rq4znVxneuusLjOda5bilw3GVdYXOe6XWgpct1dto/Eda7bhVx3s91lrovrniO7kOtcd4UlrnNdXOe6Kyyuc53rliLX3WWnJq4Pgt1zZBdyneviuuK5/lR8z5FdyHWui+viOtfFda67wuJ6PNg9R3Yh17kurovrXBfXue4Ki+tc57qlyHWTcYXFda4j3+rjugtrH4nrXLcmuW5MLizXxXXPkT3Jda673OI6131et/ocC9ddbnGd61y3+rjuwjo1cZ3r1qQj47oLax+J61y3JrnOdXFdXPccWZNc57rLLa5znetWH9dNxuUW17nOdauP6y6syy2uc92e5Loxua9cF9c9R/Yk17kurovrXLf6nArXXW5xnetct/q47r663OI61wniyLjuvtpH4jrX7Umuc11cF9c9R/Yk17nucovrXOe61edUuO5yi+tc57rVx3X31amJ61y3Jx0Z191XrovrXLcnuc51cV1c9xzZk1znusstrnOd61Yf103G5RbXuc51q4/r7qvLLa5z3Z7kujG5r1wX1z1H9iTXue5yS1z3HFVdoIZf+gbzW+K65+usRWn4xS8w1iWue8C4bviFLjDXJa57wLhu+Fx3u8V1rnPd5uO6mbnd4jrXrUkHw3UX1qmJ61y3JrluTlznurjuAbMmuc51rktc94BxnesurNstrnOd6zYf111Ypyauc92adDBcd2GtHXGd69Yk182J61wX1z1gXDd8rnNdXOc6120+rpuZ2y2uc53rDobrLqxTE9e5bk1y3Zy4znUd63qkZ5zrNh/XXVinJq4Pd715wKxJrnOd6xLXPWBc57oL63aL61znus3HdRfWqSme6lz3gHGd6y6s2y2uc53rNh/XXVinJq5z3Zp0MFx3Ya0dcZ3r1iTXzYnrXBfXPWDH7kmz5zrXxXWue8By7VBP8NGRW+K6x6/WCvUASxLX2cJ1SeI617nOdUniOte5bvaSxHWuc93sJYnrbOG6JHGd62zhuiRxnetc57okcZ3rXDd7SeI617nOdUniOlu4Lklc5zpbuC5JXOc6181ekrjOda6bvSQVdf22+BjhuiRxPaHrX1znugORpDquf3Ed7A5EkriOEa5LEte5jhGuSxLXuS5JEte5LkkS17kuSeI617kuSarCOte5LkkK7PRtIrnOdUlSDdS5znVJEte5LkkS17kuSRLXuS5J4jrXuS5J4jrXuS5J4rp//rokSVz3eV2SJK4vh90VkyRxfZnrkiRxneuSJHGd65IkcZ3rkqS7LfozpIL9uVhcl6Q90pjGRygu8XYV6yNvA9clKdaHxKP+GpvOda5zXdLBrnfT4jrXuS6J61znOtclietc5zrXJWUxcspa5TrXuc51Kcpiffkr2v3FM2C99Z4Q9pyu73ozXOc61/X+cQr2QfDtO9qwCJZ8Qa4ncr1znetcP+Pnl+O+xtLvIxrrfc5b4TrXuc51rnN9l0dc5zrXuc51rnOd61znOte5znWuc93P4bnOda5zPY/rK1TgOtd9Xuc617nO9TquN65znetc5zrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuc51rnOd61znOte5znWuc53rXOf6gnF3roOd61znOtfHvenO9SUnMfmYuQ58rnOd61wf+M65fvfrcR3sXOc617nOda5znetc5zrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuc51rnOd61znOte5znWuc53rXOc617m+8iQa17nOda5znetc5zrXuc71Mdvm3dfcu3i3bwKuc53rXOc61xe4vm7zbV28netc5zrXuc71A1zvXOc61zO5/vmb4TrXuc51rg9YDVw/3vU+651ynetc5zrX1+8Grh/uepw3w/WFrjeuc53rPq9znetc5zrXuc51rnOd61yP5/pr77nOda77OTzXuc71Kq43rnOd61znOte5znWuc53rXOc617nOda5znetc5zrX73+lPK43rnN92YX+80J//Ruuc53rXE/k+shve+Zr7Y/rJ7n+023kOte5HsH1zvUF3zfXuc51rnOd63vi+ooP7FznOte5znWuc53rXOc617k+Y1twfeKq5TrXuQ52rnOd6xNcr/Tscd0fX+f6Y9urcM91rp/ueuM617l+suvlPslznetc5zrXuc51rnOd61znOte5zvUjXW9c5zrXuc51rnOd61znOte5znWuc53rXOc617m+yfXe8l9NrnOd61znOte5vn9IXAc717nOda5znetc5zrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuc51rnOd61wffxs717nOda5znetc5zrXuc71qq53rnOd61znOte5znWuc53rXP/sy3Od61znOte5znWuc53rXPfH17nOda5znetcv/VWuc51rnOd61zn+oP32399Ha5znetc53pq1zvX67u+adVynetc53pS11P/fWnazqeY61znOte5znWuL3uOpn+JWb8X4DrXuc51rnN90adQrnOd61znOte5znWuc53rXOc617nOda5znesfv8f//4Ut0i3hOte5Xsz1+/8zrnOd67dffe4l5DrXuc71D7YN17nOda43rHM9s/hc5zrXub7e9dg/h98CfYYPglxPATvXuc51rm9w/eZ74TrXuc51rnOd60++lcmPONe5znWuH+v67JXKda7PeVtc5zrXuc71x685/AW4znWuc53rXOd6Xtc717nOda5znetc5zrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuS6uc53rXOc617nOda5znetc5zrXuc51rn+0bbjOda5znetc53od1++8Ha5znetc5zrXuf7I9flfmOtc5zrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuc51rnOd61znOte5znWuc53rXOc617meCnauc53rXOc617leB/yTXG9c5zrXuR50Uzauc53rPq//fr3fL/rrP3Suc3256yvGGszLYyDnOtdjuT77yYvh+tTvketc5zrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuc51rnOd61znOte5znWuc53rXOe6uM51rnOd61znOte5znWuc53rXOc612dczzbm+nauc53rXOc617m+3fU1Tz/Xuc51rnOd61zf4HrjOte5znWuc11c5zrXuc51rnOd61znOte5znWuc53rXOc617ke3vXOda5znetc5zrXB7neY8V1rnOd61znejrWuc51rnOd61zn+gTX4z97XOc617nO9aSux1qlXOc617nOda5z/e5LRt6nXOc617nOda5zPa3rnetc5zrXuc51rvu8znWuc53r4jrXfV7nOtenuz7lTnBdXOc617nO9TSuv70ZXBfXuc51rnOd61wnPte5znWuc53rXAc717nOda5znetc5zrXuc51rnOd61znOte5znWuc53r4jrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuc51rnOd61znOte5znWuc11c5zrXuc51rnOd61znOteruz7rtLnOda5znetcH7awdru+ax1znetc5zrXuZ7D9XtfiOtc5zrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuc51rnOd61znurjOda5zneu1XW9c5zrXuc51rod0ffR3xnWuc53rKx7wHsz1KWRwnetc5zrXub7gSRrwon/9n8Fvbqvrc8zgOte5znWuH+P6mv0/4iWnPYxc5zrXuc51neF6i7RquM51rnOd61znOte5znWuc53rXOc617nOda5znevyx9e5znWuc53rXAc717nOda5znetcBz7Xuc51rnOd61znOte5znWuc53rXOc617nOda5zneviOte5zvXl75zrXOc617nOda5nc71xnetc5/psnLjOda5znetc5zrXuc51rnOd61znOte5znWuc53rXOc617nOda4vvDZc5zrX67jeuM51rq9647NeeMY75jrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc57q4zvVIrjeuc53rXOc617nu8zrXuc51rovrp7s+dSkMenGuV3Y91Qtznetc53p01+cuhUGvznWuc53rXOc617nOda5zneviOte5znWuc53rXI/heqjnmOtc5zrXuc51rnOd61znOte5znWuc53rXOc617kurnOd61znOte5Lq5znetc5zrXuc51rnOd61xf43qsfcB1rp8GO9e5zvWSrk9/Awu+R65zHez7XPfXr3Od69lcbwvGwPUirv/xB8EJuOc617nOda4f6vpbVf71X7E2gexc5zrXuc71A11/xgxpuc51rnOd61znurjOda5znetc5zrXN7o+6NJznetc5zrXua4PYJ90JbnOda5znetcF9e5znWuc53rXBfXuc51rnOd61znOte5znWuc53rXOc617nOda5zneviOte5znWuc53r4jrXuc51rnOd61znOte5znWuc53rXOc617nOda5znetc5zrXuc51rnNdXOc617m+422uGENV11uYa8R1rHOd61znepLP6/94pRaHxBJxnetc5zrXx6oS9XOcuM51rnOd63tdl8R1rnOd6xdefY7pUJa4Lq7vd/3qi1oYkriuXLB/8rI//X89apLEdX3kuiSJ61znuiSJ6+K6JInr4rokietglyTpKu9vvOc67yVJdT7Jcx3skqQ6sHOd65IkrovrkiSui+uSJK5zXZIkrnNdksR1cV2SxHVxXZK0kXWuc12SxHVxXZLEdXFdksR1rkuSxHWuS5K4Lq5LkrgurkvSxPqrLv6yb/43/c4v5rq4Lqmko3/jrvcxkH73VS+/ndus33vvwWDnOtclFRf2518YyPXOda5zXRLWL7sT3XWf17nOdUnqZT6vz3L93Qi4Lq5LOt31Hujn8P3DH1nUct0/94Xrkrg+mHSuc11cl8R1rnOd65K4znWuc53rkrh+kuv9wXtvXBfYJXF9sev91sdqrov3krge2PXO9eu0c53skrgew/XvfgnX72rPda5L4jrXuS6uS4rk+ui/jyzXuS6uS+I617kurksa53qP7nrjOtfFdYnrXOc617kuietVXX/1Wu+/iQvfaOabwnWuS+L6tS946809/Fauut4eu/7Zm+e6uC5pqevz/ry5e2+O61wX1yVxnetc57okri/569y4znVxXRLX73wnXOc61yVxPdPP4bnOdXFd0nsYz/q8/vyvc7v/O6Zc1HOd65JqwD7f9VB/H9nVrvv70ojrkrjOda6L65K4vs71znVxXRLXuc51cV0S17nOdXFdUmHX24R/nhvXxXVJXN/i+lvGP3K9cV1cl8T1da6/Z5zrXOe6JK77vM51cV0S17nOdXFdEtfv0Jjz5/BpbgfXcS+J61znutAuietc57q4LimF6xfJG+36+z/gznWuc10S12fBPtz1j74A17nOdUlc5zrXxXVJXOc61wV2SYlcb2NdbwNdf/kG377/K99i5tvBda5L4vrzL3yVzxev8qnrbYrrqW8H17ku6QDXx7jFda4L65Liuf7ULq5zXVyXxPXXL8J1rgvsEte5znWuc10S17nuz4cX1yVx/Z2S5Vz316+L65KKub7mn7+ex3X//HVxXdIO1zvXuS6uS+J6Ktcb17nOdUlc5zrXxXVJXOc618V1SVznOteFdUlc5zrXuS6J6/dBjuF68+fDc11gl7hex/WfXoHrXOe6JK5zneviuiSuc53r4rokrt/5mlznusAuietc5zrtJXGd61wX2iXlc/0RyFznurh+VmYrrmd2vXFdXNcV1w1XXH/wJX1e57q4znWJ61znutDDdXG9kuvt4d8ffuDP4fNsLa5zXVwX16O7PnWcLZXbXOe6uK4jYL+ErNEdsLW4znVxXRLXxXWuSxLXxXWuSxLXxXWuSxLXuS6uS+K6uC6uS+K6uM51SeK6uM51SeK6uM51SeI618V1SVwX17luuJK4Lq5zXZK4Lq5zXZK4LvRwXRLXxXVxXRLXxXWuSxLXxXWuSxLXBfYArht52oMzG3FdwMeD2RY6N9MR18V1Ppgt1yWuC+xcF9clrovrXBfXJa4LPlwX18V1xnFdXOe6xHVxnetGy3WJ6+I618V1ieviOtfFdYnrstm47twckbgurovrXJe4Lq5zXVyXuC6uc11cl7gurnNdXJe4znVxnesS18V1Phgt1yWui+tcF9clrovrXBfXJa4LPlx3bo5IXBfXxXWuS1wX17lutFyXuC6uc11cl7gurnNdXJe4LpuN687NEYnr4jofjJbrEtfF9SNdN9v452Y8fkvEdQHfkjPb8udman5LxHWBnQ9GW+jcjI3rXBfX+WC0XOe6uC6uc11c57q4Lq5zXVznurguq43rzs0JcZ3r4rq4znWjMyKui+tcN1quc11cF9e5Lq5zXVwX17kurnNdXJfnluvOzQlxneviuiVntFznurgurnNdXOe6uC6uc11c57q4Lvhw3bk5Ia5zXVwX17ludEbEdXGdD0bLda6L6+I618V1rovr4jrXxXWui+uy2rju3JwQ17kurltyRst1ozMirovrXDdarnNdXBfXuS6uc11cF3y4Lq5zneuS55brzs0JcZ3rAjsfjLbUuf3jJYzOvea6gG/JGW3BczM6M+K6uM4Hsy10bkZnRFwX1/lgtlznurgusHNdXOe6uC74cF1c57q4Lg8u152bA+I618V1S85ouW507jDXxXWuGy3XuS6ui+tcF9e5Lq7LbuM61x0Q17kueXC57ty4bkRcF9ctOaPlOtfFdXGd6+I618V1cZ3r4jrXxXXZbVx3bg6I61yX+GC0XDc6I+K6uM4Ho+U618V1cZ3r4jrXxXXBh+viOte5Lnlwue7cHBDXuS6uW3JGW//YzM6IuC6uA8Jouc51cV1c57q4znVxXezhuuadmuEZEdcFdkIYbZ0jMk8j4rrADg2jLXI4/zqh2ofmDnNd+kKH0Z54OEVPyHS4LnHdaLluqm4x18V1dNiIXOe6uC6wc11c57q4LruN6w7HCXGd6xLXTdbhcN2MuC6uW3Imy3VTdYu5Lq6jw0bkOtfFddltXOe6E+K6uC7PLdcdjhPiOtclrpss17nuFnNdXLfkTJbrXBfXxXWui+tcF9dlt3Gd606I61yXPLdcdzhcNyOui+voMFmum6pbzHVxHR02Ite5Lq6L61znurvPdXFdnluuOxwnxHWuS1w3WYfDdTPiurhuyZks17kurovr5LARuc51cV12WyU4rCiuc11cl91Wxw0rKjjrXHeLuS6w88FGLHRexusWc13E58SjAZ67K9Nc8RonxHWuS+mfaYN1PA5o5rxJy3VxHRx2ZXrXv8zbJea6uA4OK9Hnda6L67LduM51J8R1cV2eXK47HifEda5LXDdYx8N1t5jr4rpFZiNy3by5znVxHRxcd0JcF9dluXGd606I61yXuG6wjofrZsR1iesG63i47hZzXVwHh43Ida6L67LcuM51J8R1cV2WG9c544S4Xvph4bq4brCOxwlxvc6TwnVx3WAdjxPiep3T4Lq4brCOxwlxnesS1w3W8dQ7IEPiusR1g3U8Pq+7xVwX18FhI3Kd6+K6LDdwcN0Jcd3t57osN65zxglxnesS1w3W6Rx0QmbEdYnrBut0ypyQGXFd4nqAwZbZk5WvfrzjsR64LnHdxJ3Dg7OIeUAuK9elqk+0yTqHEw/IKLgucd1knQPX3dXwZ8R1cd1knQPXFexufPIqBimum6xz4Lrq3DAjENdN1jlwXVyXuG6yjoHr4rrEda77vG7e4rosN/uN6w7IvMV1WW5c57oD4jrXJa6brHPgurgucd1knQPXxXVx3X7juqtv3uK6LDf7jesOyLzFddluXOc618V1iesG6xy4Lq5LXOc6Z7gurst2s9+47uabt7gu243rXHdA5s11iesG6xi4Lq5LXDdY58B1cV1ct9+4znXzFtdlu9lvBV13881bXJftZsGVcd3NN3BxXbab/VbGdTffwMV12W72m5+GSOK6DpXHwLfM3bwlrsulpEsd2I1b4rpEF65L4rrAQxeuS/LYievGy3WJ6xLXjdfkJa5LXOe6JK4LPHThuiSuCzx04brEdYnrxmvyEtclrnPd5CWuS1znuiSuCzx04bokrovrxst1iesS143X5CWuS1znuiSuCzx04bokrgs8dOG6xHWJ68Zr8BLXJa5z3eAlrktcr+66YUtcl7jOdUlcF3j4IklcF9cliesS1yWJ69IT2z8G3zglcV2SJHFdkiRxXZIkcV2SJHFdkiSuS5IkrkuSJK5LkiSuS5LEdUmSxHVJksR1SZLEdUmSxHVJkrguSZK4LkmSuC5JkrguSRLXjUCSJK5LkiSuS5IkrkuSJK5LksR1SZLEdUmSxHVJksR1SZLEdUmSuC5JkrguSZK4LkmSuC5JEtclSRLXJUkS1yVJEtclSRLXJUniuiRJ4rokSeK6JEniuiRJ4rokSVyXJElclyRJXJckSVyXJInrkiSJ65IkieuSJInrkiSJ65IkcV2SJHFdkiRxXZIkcV2SpGP7D3IvHJt4nTNMAAAAAElFTkSuQmCC">
+</div>
 
 <script>
 (function(){
@@ -1008,8 +1043,11 @@
     {tag:"FED. R. CIV. P.", prompt:"Duty to Disclose; General Provisions Governing Discovery", answer:"26", description:"Sets the basic rules for discovery, including required initial disclosures, the scope of discoverable information, proportionality, expert disclosures, and protective orders."},
     {tag:"FED. R. CIV. P.", prompt:"Depositions by Oral Examination", answer:"30", description:"Governs oral depositions, including when they may be taken, notice requirements, limits on the number and length of depositions, and how the examination is conducted."},
     {tag:"FED. R. CIV. P.", prompt:"Failure to Make Disclosures or to Cooperate in Discovery; Sanctions", answer:"37", description:"Allows a party to seek an order compelling discovery and lets the court impose sanctions when a party fails to comply with discovery obligations or court orders."},
+    {tag:"FED. R. CIV. P.", prompt:"Dismissal of Actions", answer:"41", description:"Governs how a case can end without a ruling on the merits: voluntary dismissal by the plaintiff, involuntary dismissal for failure to prosecute or follow the rules or a court order, and dismissal of counterclaims, crossclaims, or third-party claims."},
+    {tag:"FED. R. CIV. P.", prompt:"Consolidation; Separate Trials", answer:"42", description:"Lets the court consolidate actions that share a common question of law or fact, or order separate trials of claims or issues to promote convenience, avoid prejudice, or save time and expense."},
     {tag:"FED. R. CIV. P.", prompt:"Summary Judgment", answer:"56", description:"Allows the court to enter judgment without a trial when there is no genuine dispute of material fact and the moving party is entitled to judgment as a matter of law."},
     {tag:"FED. R. CIV. P.", prompt:"Declaratory Judgment", answer:"57", description:"Provides the procedure for asking a federal court to declare the parties\u2019 legal rights under the Declaratory Judgment Act before further relief is necessary."},
+    {tag:"FED. R. CIV. P.", prompt:"Relief from a Judgment or Order", answer:"60", description:"Lets a party ask the same trial court to fix a clerical mistake or set aside a final judgment for reasons such as mistake, newly discovered evidence, fraud, a void judgment, or other extraordinary circumstances."},
     {tag:"FED. R. CIV. P.", prompt:"Seizing a Person or Property", answer:"64", description:"Lets a federal court use available state-law remedies, such as attachment or garnishment, to secure a person or property before judgment unless federal law provides otherwise."},
     {tag:"FED. R. CIV. P.", prompt:"Injunctions and Restraining Orders", answer:"65", description:"Governs temporary restraining orders (TROs) and injunctions, including notice, required findings, specificity, and security."},
     {tag:"FED. R. CIV. P.", prompt:"Enforcing a Judgment for a Specific Act", answer:"70", description:"Gives courts tools to enforce a judgment requiring a specific act, including contempt, ordering someone else to perform the act, or transferring title."},
@@ -1380,7 +1418,7 @@
     {
       id: "caseBrief",
       title: "Case Brief",
-      blurb: "60-second speed drill — the case facts appear, type one matching word from the case name before time runs out. Close spellings count.",
+      blurb: "60-second speed drill \u2014 the case facts appear, type one matching word from the case name before time runs out. Close spellings count.",
       status: "ready",
       typedAnswer: true,
       wordMatch: true,
@@ -1398,7 +1436,7 @@
     {
       id: "prongOrder",
       title: "Order in the Court",
-      blurb: "90-second gauntlet — type each test's prongs, in order, before the buzzer. Close spellings count. No partial credit.",
+      blurb: "90-second gauntlet \u2014 type each test's prongs, in order, before the buzzer. Close spellings count. No partial credit.",
       status: "ready",
       duration: 90,
       orderRounds: true,
@@ -1503,8 +1541,10 @@
   };
   function show(name){
     Object.keys(screens).forEach(function(k){ screens[k].hidden = (k !== name); });
+    if (voteLogoEl) voteLogoEl.hidden = (name !== 'home');
   }
 
+  var voteLogoEl = document.getElementById('voteLogo');
   var cabinetGrid = document.getElementById('cabinetGrid');
   var howtoSubEl = document.getElementById('howtoSub');
   var howtoRulesEl = document.getElementById('howtoRules');
@@ -1583,13 +1623,21 @@
   // Leave the placeholder as-is when previewing inside a Claude artifact —
   // Firebase's CDN is blocked there by design, so the leaderboard just shows
   // "unavailable" and the rest of the game still works.
+  //
+  // measurementId (site analytics): Firebase Console -> civpro-arcade ->
+  // Project settings -> Integrations -> Google Analytics -> Enable. Once
+  // enabled, this same "Your apps -> Web app" config block will show a
+  // measurementId (looks like "G-XXXXXXXXXX") — paste it in below. Until
+  // then this stays blank and analytics simply stays off, same fallback
+  // pattern as the leaderboard above.
   var FIREBASE_CONFIG = {
     apiKey: "AIzaSyDmSKqA0F2lvWRcEq_IjanEa1UMoR5VECs",
     authDomain: "civpro-arcade.firebaseapp.com",
     projectId: "civpro-arcade",
     storageBucket: "civpro-arcade.firebasestorage.app",
     messagingSenderId: "567645446891",
-    appId: "1:567645446891:web:bfc402f744559d7e1c54ae"
+    appId: "1:567645446891:web:bfc402f744559d7e1c54ae",
+    measurementId: "G-J81Q4K6MSB"
   };
 
   function initFirebaseDb(){
@@ -1604,6 +1652,28 @@
   }
 
   var dbPromise = Promise.resolve(initFirebaseDb());
+
+  /* ---------------- site analytics (Firebase Analytics = GA4, opt-in) ---------------- */
+  // Stays off until FIREBASE_CONFIG.measurementId is filled in above (see the
+  // comment on FIREBASE_CONFIG). Safe to leave alone otherwise -- every call
+  // below is a no-op when analytics isn't configured or the SDK isn't loaded.
+  function initFirebaseAnalytics(){
+    if (typeof firebase === 'undefined') return null;
+    if (typeof firebase.analytics !== 'function') return null; // analytics SDK script not included
+    if (!FIREBASE_CONFIG.measurementId) return null; // Analytics not linked in Firebase Console yet
+    try{
+      return firebase.analytics();
+    }catch(e){
+      return null;
+    }
+  }
+
+  var analytics = initFirebaseAnalytics();
+
+  function logAnalyticsEvent(name, params){
+    if (!analytics) return;
+    try{ analytics.logEvent(name, params); }catch(e){}
+  }
   var lbStatus = document.getElementById('lbStatus');
   var lbList = document.getElementById('leaderboardList');
 
@@ -1977,6 +2047,8 @@
     state.timeLeft = game.duration || 60;
     state.ended = false;
     state.evaLeft = 3;
+    state.attemptStartedAt = Date.now();
+    logAnalyticsEvent('game_start', { game_id: game.id, game_title: game.title });
     updateEvaBtn();
     referencePanel.hidden = !game.hasReferenceList;
     document.querySelector('.game-body').classList.toggle('has-reference', !!game.hasReferenceList);
@@ -2506,6 +2578,14 @@
     state.lives--;
     var score = state.correctCount;
     var mode = (state.lives <= 0) ? 'gameover' : 'retry';
+    var attemptGame = getGame(state.gameId);
+    var durationSeconds = state.attemptStartedAt ? Math.round((Date.now() - state.attemptStartedAt) / 1000) : null;
+    logAnalyticsEvent('game_finish', {
+      game_id: state.gameId,
+      game_title: attemptGame ? attemptGame.title : state.gameId,
+      score: score,
+      duration_seconds: durationSeconds
+    });
     if (currentScoreQualifies(score)){
       showHighscoreModal(score, mode);
     } else {
