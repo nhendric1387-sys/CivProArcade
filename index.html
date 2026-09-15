@@ -321,6 +321,8 @@
   .game-card.locked .game-tag{ background:var(--slate); color:var(--paper-dim); }
   .game-title{ font-family:'Press Start 2P',monospace; font-size:12px; color:var(--paper); margin:0 0 8px; line-height:1.4; }
   .game-card.locked .game-title{ color:var(--dust); }
+  .game-coverage{ font-family:'VT323',monospace; font-size:14px; color:var(--lantern-dim); letter-spacing:.04em; text-transform:uppercase; margin:-6px 0 10px; }
+  .game-card.locked .game-coverage{ color:var(--dust); }
   .game-blurb{ font-size:16px; color:var(--paper-dim); line-height:1.35; margin:0 0 12px; min-height:38px; }
   .game-card.locked .game-blurb{ color:var(--dust); }
   .game-score-peek{
@@ -1367,7 +1369,14 @@
     { tag: 'SUPPLEMENT', prompt: 'AI-hallucinated case citations in briefing; R.11 sanctions for non-existent authority', answer: 'ByoPlanet', aliases: ['Johansson'], caseName: 'ByoPlanet v. Johansson', description: 'ByoPlanet v. Johansson — AI-hallucinated case citations in briefing; R.11 sanctions for non-existent authority' },
     { tag: 'SUPPLEMENT', prompt: 'Rothstein Ponzi scheme; R.37(b)/(c) discovery sanctions + inherent-power bad-faith sanctions', answer: 'Coquina', aliases: ['Investments', 'Scott', 'Rothstein', 'TD', 'Bank'], caseName: 'Coquina Investments v. Scott W. Rothstein & TD Bank', description: 'Coquina Investments v. Scott W. Rothstein & TD Bank — Rothstein Ponzi scheme; R.37(b)/(c) discovery sanctions + inherent-power bad-faith sanctions' },
     { tag: 'FOOTNOTE CASE', prompt: 'Florida SB 4-C immigration law; PI granted, AG held in contempt for continued enforcement', answer: 'Immigrant', aliases: ['Coal', 'Uthmeier'], caseName: 'Fla. Immigrant Coal. v. Uthmeier', description: 'Fla. Immigrant Coal. v. Uthmeier — Florida SB 4-C immigration law; PI granted, AG held in contempt for continued enforcement' },
-    { tag: 'FOOTNOTE CASE', prompt: 'Banquet-gratuity FLSA wage class action; fees/sanctions order', answer: 'Fox', aliases: ['Ritz-Carlton'], caseName: 'Fox v. Ritz-Carlton', description: 'Fox v. Ritz-Carlton — Banquet-gratuity FLSA wage class action; fees/sanctions order' }
+    { tag: 'FOOTNOTE CASE', prompt: 'Banquet-gratuity FLSA wage class action; fees/sanctions order', answer: 'Fox', aliases: ['Ritz-Carlton'], caseName: 'Fox v. Ritz-Carlton', description: 'Fox v. Ritz-Carlton — Banquet-gratuity FLSA wage class action; fees/sanctions order' },
+    { tag: 'YSC CASEBOOK', prompt: 'Forklift accident, wrong-D confusion; general denial ineffective — D ESTOPPED, R.8(b) specific-denial rule', answer: 'Zielinski', aliases: ['Philadelphia', 'Piers'], caseName: 'Zielinski v. Philadelphia Piers, Inc.', description: 'Zielinski v. Philadelphia Piers, Inc. — Forklift accident, wrong-D confusion; general denial ineffective — D ESTOPPED, R.8(b) specific-denial rule' },
+    { tag: 'YSC CASEBOOK', prompt: 'Waterslide injury; R.15(a) amendment to DENY manufacture allowed — no bad faith, no prejudice to π', answer: 'Beeck', aliases: ['Aquaslide'], caseName: "Beeck v. Aquaslide 'N' Dive Corp.", description: "Beeck v. Aquaslide 'N' Dive Corp. — Waterslide injury; R.15(a) amendment to DENY manufacture allowed — no bad faith, no prejudice to π" },
+    { tag: 'YSC CASEBOOK', prompt: 'Informed-consent surgery claim; NEGLIGENCE theory does NOT relate back — different time/conduct, R.15(c) barred by SOL', answer: 'Moore', aliases: ['Baker'], caseName: 'Moore v. Baker', description: 'Moore v. Baker — Informed-consent surgery claim; NEGLIGENCE theory does NOT relate back — different time/conduct, R.15(c) barred by SOL' },
+    { tag: 'YSC CASEBOOK', prompt: 'Rehab basketball-court injury; counseling-malpractice claim DOES relate back — same nucleus of operative fact', answer: 'Bonerb', aliases: ['Caron', 'Foundation'], caseName: 'Bonerb v. Richard J. Caron Foundation', description: 'Bonerb v. Richard J. Caron Foundation — Rehab basketball-court injury; counseling-malpractice claim DOES relate back — same nucleus of operative fact' },
+    { tag: 'SUPPLEMENT', prompt: 'Anti-Terrorism Act suit vs. Lebanese bank; R.60(b)(6) reconsideration analyzed before R.15 amendment', answer: 'BLOM', aliases: ['Bank', 'Honickman'], caseName: 'BLOM Bank SAL v. Honickman', description: 'BLOM Bank SAL v. Honickman — Anti-Terrorism Act suit vs. Lebanese bank; R.60(b)(6) reconsideration analyzed before R.15 amendment' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Voluntarily dismissed suit; R.60(b) reopening allowed post-dismissal since a R.41(a) voluntary dismissal counts as a "final proceeding"', answer: 'Waetzig', aliases: ['Halliburton'], caseName: 'Waetzig v. Halliburton Energy Services, Inc.', description: 'Waetzig v. Halliburton Energy Services, Inc. — Voluntarily dismissed suit; R.60(b) reopening allowed post-dismissal since a R.41(a) voluntary dismissal counts as a "final proceeding"' },
+    { tag: 'FOOTNOTE CASE', prompt: 'Cert. granted, question still pending: whether an unpled affirmative defense can support summary judgment without amending the answer, given R.16(b)(4)', answer: 'Younge', aliases: ['Fulton'], caseName: "Younge v. Fulton Judicial Circuit District Attorney's Office", description: "Younge v. Fulton Judicial Circuit District Attorney's Office — Cert. granted, question still pending: whether an unpled affirmative defense can support summary judgment without amending the answer, given R.16(b)(4)" }
   ];
 
 
@@ -1379,6 +1388,7 @@
     {
       id: "rulesStatutes",
       title: "Rules & Statutes",
+      coverage: "Through Sept. 16",
       blurb: "60-second speed drill \u2014 match the rule or statute to its number before time runs out.",
       status: "ready",
       howtoRules: [
@@ -1418,6 +1428,7 @@
     {
       id: "caseBrief",
       title: "Case Brief",
+      coverage: "Through Sept. 16",
       blurb: "60-second speed drill \u2014 the case facts appear, type one matching word from the case name before time runs out. Close spellings count.",
       status: "ready",
       typedAnswer: true,
@@ -1815,6 +1826,7 @@
           '<span class="game-tag">Soon</span>' +
         '</div>') +
         '<h2 class="game-title">' + game.title.toUpperCase() + '</h2>' +
+        (game.coverage ? '<p class="game-coverage">(' + game.coverage + ')</p>' : '') +
         '<p class="game-blurb">' + game.blurb + '</p>' +
         '<div class="game-score-peek" id="peek-' + game.id + '">' +
           (isReady ? 'Loading…' : 'No scores yet — check back soon.') +
@@ -2695,5 +2707,5 @@
   show('home');
 })();
 </script>
-</body>
-</html>
+
+</body></html>
