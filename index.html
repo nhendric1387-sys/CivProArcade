@@ -321,10 +321,10 @@
   .game-card.locked .game-tag{ background:var(--slate); color:var(--paper-dim); }
   .game-title{ font-family:'Press Start 2P',monospace; font-size:12px; color:var(--paper); margin:0 0 8px; line-height:1.4; }
   .game-card.locked .game-title{ color:var(--dust); }
-  .game-coverage{ font-family:'VT323',monospace; font-size:14px; color:var(--lantern-dim); letter-spacing:.04em; text-transform:uppercase; margin:-6px 0 10px; }
-  .game-card.locked .game-coverage{ color:var(--dust); }
   .game-blurb{ font-size:16px; color:var(--paper-dim); line-height:1.35; margin:0 0 12px; min-height:38px; }
   .game-card.locked .game-blurb{ color:var(--dust); }
+  .game-coverage{ font-family:'VT323',monospace; font-size:14px; color:var(--lantern-dim); letter-spacing:.04em; text-transform:uppercase; margin:-6px 0 10px; }
+  .game-card.locked .game-coverage{ color:var(--dust); }
   .game-score-peek{
     font-size:14px; color:var(--dust); border-top:1px dashed var(--slate);
     padding-top:8px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;
@@ -1019,7 +1019,10 @@
     {tag:"FED. R. CIV. P.", prompt:"One Form of Action", answer:"2", description:"Federal court uses one type of civil lawsuit: a \u201ccivil action.\u201d"},
     {tag:"FED. R. CIV. P.", prompt:"Commencing an Action", answer:"3", description:"A federal civil lawsuit officially begins when the plaintiff files the complaint."},
     {tag:"FED. R. CIV. P.", prompt:"Summons", answer:"4", description:"Governs the summons and service of the complaint, including who may serve, waiver of service, where service is allowed, and the usual 90-day deadline."},
+    {tag:"FED. R. CIV. P.", prompt:"Serving Other Process", answer:"4.1", description:"Covers service of court process other than the summons and complaint, such as writs and orders committing someone for civil contempt, including who may serve them and the geographic limits on service."},
     {tag:"FED. R. CIV. P.", prompt:"Serving and Filing Pleadings and Other Papers", answer:"5", description:"Governs how papers after the complaint are served on other parties and filed with the court, including electronic service and filing."},
+    {tag:"FED. R. CIV. P.", prompt:"Constitutional Challenge to a Statute", answer:"5.1", description:"Requires a party challenging the constitutionality of a federal or state statute to notify the court and the U.S. or state attorney general, giving the government a chance to intervene."},
+    {tag:"FED. R. CIV. P.", prompt:"Privacy Protection for Filings Made with the Court", answer:"5.2", description:"Requires parties to redact sensitive personal information, such as Social Security numbers and financial account numbers, from filings made with the court."},
     {tag:"FED. R. CIV. P.", prompt:"Computing and Extending Time; Time for Motion Papers", answer:"6", description:"Explains how to count deadlines and when a court may extend them."},
     {tag:"FED. R. CIV. P.", prompt:"Pleadings Allowed; Form of Motions and Other Papers", answer:"7", description:"Lists the pleadings allowed in federal court and sets basic requirements for motions and other court papers."},
     {tag:"FED. R. CIV. P.", prompt:"Disclosure Statement", answer:"7.1", description:"Requires certain parties to disclose ownership or citizenship information so the court can identify conflicts and confirm diversity jurisdiction."},
@@ -1043,15 +1046,29 @@
     {tag:"FED. R. CIV. P.", prompt:"Intervention", answer:"24", description:"Allows a nonparty to join an existing case either as of right when its interests may be harmed or, with the court\u2019s permission, when it shares a common issue with the case."},
     {tag:"FED. R. CIV. P.", prompt:"Substitution of Parties", answer:"25", description:"Explains when another person may replace a party because of death, incompetence, transfer of interest, or a public officer leaving office."},
     {tag:"FED. R. CIV. P.", prompt:"Duty to Disclose; General Provisions Governing Discovery", answer:"26", description:"Sets the basic rules for discovery, including required initial disclosures, the scope of discoverable information, proportionality, expert disclosures, and protective orders."},
+    {tag:"FED. R. CIV. P.", prompt:"Depositions to Perpetuate Testimony", answer:"27", description:"Allows a person to petition the court to take a deposition before a lawsuit is filed, or pending an appeal, to preserve testimony that might otherwise be lost."},
+    {tag:"FED. R. CIV. P.", prompt:"Persons Before Whom Depositions May Be Taken", answer:"28", description:"Specifies who is authorized to administer oaths and take depositions, generally an officer authorized by federal or state law, and disqualifies anyone related to or interested in the case."},
+    {tag:"FED. R. CIV. P.", prompt:"Stipulations About Discovery Procedure", answer:"29", description:"Lets parties agree in writing to modify most discovery procedures, such as deposition timing or method, without court approval, unless the changes would affect deadlines the court has set."},
     {tag:"FED. R. CIV. P.", prompt:"Depositions by Oral Examination", answer:"30", description:"Governs oral depositions, including when they may be taken, notice requirements, limits on the number and length of depositions, and how the examination is conducted."},
+    {tag:"FED. R. CIV. P.", prompt:"Depositions by Written Questions", answer:"31", description:"Allows a party to depose a witness using written questions submitted in advance, which an officer reads to the witness and records, rather than through live oral examination."},
+    {tag:"FED. R. CIV. P.", prompt:"Using Depositions in Court Proceedings", answer:"32", description:"Governs when and how a deposition may be used at trial or in a hearing, including for impeachment, against a party who was present, or when the witness is unavailable."},
+    {tag:"FED. R. CIV. P.", prompt:"Interrogatories to Parties", answer:"33", description:"Allows a party to serve up to 25 written questions on another party, who must answer in writing under oath or object within the time allowed."},
+    {tag:"FED. R. CIV. P.", prompt:"Producing Documents, ESI, and Tangible Things, or Entering onto Land, for Inspection", answer:"34", description:"Allows a party to request documents, electronically stored information, and tangible things from another party, and to enter onto land for inspection, testing, or sampling."},
+    {tag:"FED. R. CIV. P.", prompt:"Physical and Mental Examinations", answer:"35", description:"Lets a court order a party, or a person in that party’s custody, to undergo a physical or mental examination when that person’s condition is genuinely in controversy and good cause is shown."},
+    {tag:"FED. R. CIV. P.", prompt:"Requests for Admission", answer:"36", description:"Allows a party to ask another party to admit the truth of facts or the genuineness of documents; a matter is deemed admitted if not timely and properly denied or objected to."},
     {tag:"FED. R. CIV. P.", prompt:"Failure to Make Disclosures or to Cooperate in Discovery; Sanctions", answer:"37", description:"Allows a party to seek an order compelling discovery and lets the court impose sanctions when a party fails to comply with discovery obligations or court orders."},
     {tag:"FED. R. CIV. P.", prompt:"Dismissal of Actions", answer:"41", description:"Governs how a case can end without a ruling on the merits: voluntary dismissal by the plaintiff, involuntary dismissal for failure to prosecute or follow the rules or a court order, and dismissal of counterclaims, crossclaims, or third-party claims."},
     {tag:"FED. R. CIV. P.", prompt:"Consolidation; Separate Trials", answer:"42", description:"Lets the court consolidate actions that share a common question of law or fact, or order separate trials of claims or issues to promote convenience, avoid prejudice, or save time and expense."},
+    {tag:"FED. R. CIV. P.", prompt:"Judgment as a Matter of Law in a Jury Trial; Related Motion for a New Trial; Conditional Ruling", answer:"50", description:"Lets the court take a claim from the jury, or set aside a verdict, when no reasonable jury could find for the nonmoving party on the evidence presented; a renewed motion after verdict can pair with a conditional new-trial ruling."},
+    {tag:"FED. R. CIV. P.", prompt:"Findings and Conclusions by the Court; Judgment on Partial Findings", answer:"52", description:"Requires the court to make findings of fact and conclusions of law after a bench trial, and lets the court enter judgment against a party once it has been fully heard on an issue and the facts do not support that party."},
+    {tag:"FED. R. CIV. P.", prompt:"Judgment; Costs", answer:"54", description:"Defines what counts as a judgment, allows partial final judgment on fewer than all claims or parties in limited circumstances, and generally awards costs other than attorney’s fees to the prevailing party."},
     {tag:"FED. R. CIV. P.", prompt:"Summary Judgment", answer:"56", description:"Allows the court to enter judgment without a trial when there is no genuine dispute of material fact and the moving party is entitled to judgment as a matter of law."},
     {tag:"FED. R. CIV. P.", prompt:"Declaratory Judgment", answer:"57", description:"Provides the procedure for asking a federal court to declare the parties\u2019 legal rights under the Declaratory Judgment Act before further relief is necessary."},
+    {tag:"FED. R. CIV. P.", prompt:"New Trial; Altering or Amending a Judgment", answer:"59", description:"Allows the court to grant a new trial, or to alter or amend a judgment, generally within 28 days after entry, for reasons such as a verdict against the weight of the evidence or a legal error at trial."},
     {tag:"FED. R. CIV. P.", prompt:"Relief from a Judgment or Order", answer:"60", description:"Lets a party ask the same trial court to fix a clerical mistake or set aside a final judgment for reasons such as mistake, newly discovered evidence, fraud, a void judgment, or other extraordinary circumstances."},
     {tag:"FED. R. CIV. P.", prompt:"Seizing a Person or Property", answer:"64", description:"Lets a federal court use available state-law remedies, such as attachment or garnishment, to secure a person or property before judgment unless federal law provides otherwise."},
     {tag:"FED. R. CIV. P.", prompt:"Injunctions and Restraining Orders", answer:"65", description:"Governs temporary restraining orders (TROs) and injunctions, including notice, required findings, specificity, and security."},
+    {tag:"FED. R. CIV. P.", prompt:"Offer of Judgment", answer:"68", description:"Lets a defending party offer to allow judgment on specified terms; if the offer is rejected and the final judgment the offeree obtains is not more favorable, the offeree must generally pay the costs incurred after the offer."},
     {tag:"FED. R. CIV. P.", prompt:"Enforcing a Judgment for a Specific Act", answer:"70", description:"Gives courts tools to enforce a judgment requiring a specific act, including contempt, ordering someone else to perform the act, or transferring title."},
     {tag:"28 U.S.C. \u00a7", prompt:"Final decisions of district courts", answer:"1291", description:"Gives federal courts of appeals jurisdiction over \u201cfinal decisions\u201d of district courts; this is the basis of the final-judgment rule."},
     {tag:"28 U.S.C. \u00a7", prompt:"Interlocutory decisions", answer:"1292", description:"Allows immediate appeals of certain nonfinal orders, especially injunction orders, and sometimes permits appeal of an important controlling legal question before final judgment."},
@@ -1069,12 +1086,18 @@
     {tag:"42 U.S.C. \u00a7", prompt:"Proceedings in vindication of civil rights", answer:"1988", description:"Helps enforce federal civil-rights laws and allows prevailing parties in specified civil-rights cases to recover reasonable attorney\u2019s fees."},
     {tag:"42 U.S.C. \u00a7", prompt:"Conspiracy to interfere with civil rights", answer:"1985", description:"Creates a civil claim for certain conspiracies that interfere with federal authority, obstruct justice, or deny equal protection or equal privileges."},
     {tag:"42 U.S.C. \u00a7", prompt:"Civil action for deprivation of rights", answer:"1983", description:"Allows a person to sue someone acting \u201cunder color of state law\u201d for violating rights protected by the U.S. Constitution or federal law."},
+    {tag:"U.S. CONST. ART.", prompt:"Judicial Power; Cases and Controversies", answer:"3", description:"Defines the scope of federal judicial power, limiting federal courts to actual cases and controversies and forming the constitutional basis for standing, ripeness, and mootness doctrines."},
     {tag:"U.S. CONST. AMEND.", prompt:"Due Process (Federal)", answer:"5", description:"Due Process Clause limits federal governmental procedures."},
     {tag:"U.S. CONST. AMEND.", prompt:"Due Process (State)", answer:"14", description:"Requires states to provide due process and equal protection"},
     {tag:"FLA. R. CIV. P.", prompt:"Proposals for Settlement", answer:"1.442", description:"Governs Florida proposals for settlement. If the rule and statute are satisfied and the final result crosses the required threshold, a party may recover attorney\u2019s fees."},
     {tag:"FLA. R. CIV. P.", prompt:"Case Management; Pretrial Procedure", answer:"1.200", description:"Sets Florida\u2019s case-management and pretrial procedures, including scheduling, deadlines, case-management orders or conferences, and trial preparation."},
     {tag:"FLA. R. CIV. P.", prompt:"Complex Litigation", answer:"1.201", description:"Creates more intensive case-management procedures for cases designated as complex, including early judicial oversight, scheduling, coordinated discovery, and trial preparation."},
-    {tag:"FLA. STAT. \u00a7", prompt:"Attorney\u2019s Fees; Sanctions for Unsupported Claims or Defenses", answer:"57.105", description:"Allows sanctions and attorney\u2019s fees when a party or attorney knew or should have known that a claim or defense lacked support in the material facts or existing law; generally includes a 21-day safe-harbor period to withdraw or correct the challenged filing."}
+    {tag:"FLA. R. CIV. P.", prompt:"General Provisions Governing Discovery", answer:"1.280", description:"Sets Florida\u2019s baseline discovery rules, including the permissible scope of discovery, proportionality, and the standards for protective orders, paralleling Federal Rule 26."},
+    {tag:"FLA. R. CIV. P.", prompt:"Summary Judgment", answer:"1.510", description:"Allows a party to obtain judgment without a trial when there is no genuine dispute of material fact and the movant is entitled to judgment as a matter of law; Florida\u2019s current version tracks the federal Rule 56 standard."},
+    {tag:"FLA. STAT. \u00a7", prompt:"Attorney\u2019s Fees; Sanctions for Unsupported Claims or Defenses", answer:"57.105", description:"Allows sanctions and attorney\u2019s fees when a party or attorney knew or should have known that a claim or defense lacked support in the material facts or existing law; generally includes a 21-day safe-harbor period to withdraw or correct the challenged filing."},
+    {tag:"FLA. R. APP. P.", prompt:"Appeal of Nonfinal Orders \u2014 Injunctions", answer:"9.130", description:"Allows an immediate appeal of a nonfinal order that grants, continues, modifies, denies, or dissolves an injunction, or refuses to modify or dissolve one."},
+    {tag:"FLA. R. APP. P.", prompt:"Appeal of Nonfinal Orders \u2014 Other Enumerated Categories", answer:"9.130", description:"Allows an immediate appeal of certain other nonfinal orders the rule specifically lists, such as an order granting or denying leave to amend to add a claim for punitive damages."},
+    {tag:"S.D. FLA. L.R.", prompt:"Summary Judgment (Statement of Material Facts)", answer:"56.1", description:"Requires a party moving for or opposing summary judgment in the Southern District of Florida to file a separate, numbered statement of material facts, with citations to the record for each fact."}
   ];
 
   /* ---------------- 20 Questions content bank ---------------- */
@@ -1388,12 +1411,12 @@
     {
       id: "rulesStatutes",
       title: "Rules & Statutes",
-      coverage: "Through Sept. 16",
+      coverage: "Through Sept. 23",
       blurb: "60-second speed drill \u2014 match the rule or statute to its number before time runs out.",
       status: "ready",
       howtoRules: [
         "A rule, statute, or model rule will appear. Read the prompt.",
-        "Type the <b>number</b> that goes with it, plus the period key for ABA Model Rules with decimals (like 3.1).",
+        "Type the <b>number</b> that goes with it, plus the period key for rules with decimals (like 3.1 or 56.1).",
         "Press <b>ENTER</b> to submit your answer. Backspace fixes a typo first.",
         "Press <b>SPACEBAR</b> to skip a question you don't know \u2014 it comes back around at the end.",
         "Wrong answers cost nothing but time, so keep trying.",
@@ -2707,5 +2730,5 @@
   show('home');
 })();
 </script>
-
-</body></html>
+</body>
+</html>
